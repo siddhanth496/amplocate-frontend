@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LocateFixed, SlidersHorizontal, Zap, Navigation, ShieldCheck, X } from 'lucide-react';
+import { LocateFixed, SlidersHorizontal, Zap, Navigation, ShieldCheck, X, BatteryMedium, Car } from 'lucide-react';
 import MapView from '../components/MapView';
+import LocationSearch from '../components/LocationSearch';
 import { getNearby } from '../common/api/chargers';
 import { listMyVehicles } from '../common/api/vehicles';
 import { relColor, relLabel, relPct, timeAgo, connectorLabel, maxPowerKw } from '../common/utils/reliability';
@@ -133,19 +134,73 @@ export default function HomePage() {
   useEffect(() => { fetchChargers(); }, [fetchChargers]);
 
   const selected = useMemo(() => chargers.find((c) => c.id === selectedId), [chargers, selectedId]);
+  const defaultVehicle = useMemo(
+    () => vehicles.find((v) => v.id === vehicleId) || vehicles[0],
+    [vehicles, vehicleId],
+  );
+  const compatibleCount = useMemo(() => chargers.filter((c) => c.compatible).length, [chargers]);
+
+  const vehiclePill = defaultVehicle ? (
+    <button
+      onClick={() => navigate('/garage')}
+      className="tap flex items-center gap-2 px-3 rounded-2xl shrink-0"
+      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', height: 42 }}
+    >
+      <Car size={15} style={{ color: 'var(--color-brand)' }} />
+      <span className="text-xs font-semibold truncate max-w-[110px]">{defaultVehicle.model}</span>
+      <span
+        className="flex items-center gap-1 text-xs font-bold tabular-nums"
+        style={{ color: defaultVehicle.battery_soc < 20 ? 'var(--color-rose)' : 'var(--color-emerald)' }}
+      >
+        <BatteryMedium size={14} /> {Math.round(defaultVehicle.battery_soc)}%
+      </span>
+    </button>
+  ) : (
+    <button
+      onClick={() => navigate('/add-vehicle')}
+      className="tap flex items-center gap-1.5 px-3 rounded-2xl text-xs font-bold shrink-0"
+      style={{ background: 'var(--color-brand-light)', color: 'var(--color-brand)', height: 42 }}
+    >
+      <Car size={14} /> Add your EV
+    </button>
+  );
 
   const listPanel = (
     <div className="flex flex-col gap-2.5 p-4 pb-24 lg:pb-6">
-      <div className="flex items-center justify-between">
+      {/* Desktop header: title + search + vehicle */}
+      <div className="hidden lg:flex flex-col gap-3 mb-1">
         <div>
-          <h1 className="text-lg font-bold">Nearby chargers</h1>
-          <p className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
-            {loading ? 'Searching…' : `${chargers.length} within ${filters.radius_km} km`}
+          <h1 className="text-xl font-bold">Find a charger</h1>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
+            Community-verified reliability, matched to your EV.
           </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <LocationSearch
+            placeholder="Search an area — Indiranagar, Mysuru…"
+            compact
+            onSelect={(r) => setCenter([r.lat, r.lng])}
+          />
+          {vehiclePill}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold px-2.5 py-1.5 rounded-full"
+            style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
+            {loading ? 'Searching…' : `${chargers.length} chargers · ${filters.radius_km} km`}
+          </span>
+          {!loading && vehicleId && chargers.length > 0 && (
+            <span className="text-xs font-semibold px-2.5 py-1.5 rounded-full flex items-center gap-1"
+              style={{ background: 'var(--color-emerald-light)', color: 'var(--color-emerald)' }}>
+              <Zap size={11} /> {compatibleCount} compatible
+            </span>
+          )}
         </div>
         <button
           onClick={() => setShowFilters((s) => !s)}
-          className="tap flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl"
+          className="tap flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl shrink-0"
           style={{
             background: showFilters ? 'var(--color-brand-light)' : 'var(--color-surface)',
             color: showFilters ? 'var(--color-brand)' : 'var(--color-text-secondary)',
@@ -238,6 +293,25 @@ export default function HomePage() {
           onSelect={(c) => setSelectedId(c.id)}
           userLocation={userLoc}
         />
+
+        {/* Mobile floating header */}
+        <div className="lg:hidden absolute top-3 left-3 right-3 flex items-center gap-2" style={{ zIndex: 700 }}>
+          <div
+            className="flex items-center justify-center rounded-2xl shrink-0"
+            style={{ width: 42, height: 42, background: 'var(--color-brand)', boxShadow: 'var(--shadow-md)' }}
+          >
+            <svg width={22} height={22} viewBox="0 0 64 64">
+              <path d="M35 10 L18 37 h11 l-4 17 L44 26 h-11 z" fill="#fff" />
+            </svg>
+          </div>
+          <LocationSearch
+            placeholder="Search an area…"
+            compact
+            onSelect={(r) => setCenter([r.lat, r.lng])}
+          />
+          <div className="shrink-0" style={{ boxShadow: 'var(--shadow-md)', borderRadius: 16 }}>{vehiclePill}</div>
+        </div>
+
         <button
           onClick={() => userLoc && setCenter([...userLoc])}
           className="tap absolute bottom-4 right-4 p-3 rounded-2xl"
