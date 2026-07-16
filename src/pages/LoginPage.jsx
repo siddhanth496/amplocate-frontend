@@ -58,14 +58,14 @@ export default function LoginPage() {
       {/* Left brand panel (desktop) */}
       <div
         className="hidden lg:flex flex-col justify-between w-[44%] p-12"
-        style={{ background: 'linear-gradient(160deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%)' }}
+        style={{ background: 'linear-gradient(150deg, #1e3a8a 0%, #1d4ed8 40%, #0ea5e9 100%)' }}
       >
         <div className="flex items-center gap-2.5">
           <svg width={36} height={36} viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#fff" /><path d="M35 10 L18 37 h11 l-4 17 L44 26 h-11 z" fill="#2563eb" /></svg>
           <span className="text-xl font-bold text-white tracking-tight">Amplocate</span>
         </div>
         <div>
-          <h1 className="text-4xl font-bold text-white leading-tight max-w-md">
+          <h1 className="font-display text-4xl font-bold text-white leading-tight max-w-md">
             Charge with confidence, everywhere.
           </h1>
           <div className="mt-10 space-y-6">
@@ -94,7 +94,7 @@ export default function LoginPage() {
 
           {step === 'phone' ? (
             <form onSubmit={submitPhone}>
-              <h2 className="text-2xl font-bold">Welcome</h2>
+              <h2 className="font-display text-2xl font-bold">Welcome</h2>
               <p className="mt-1.5 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 Log in or sign up with your mobile number.
               </p>
@@ -121,7 +121,7 @@ export default function LoginPage() {
                 type="submit"
                 disabled={busy || phone.length !== 10}
                 className="tap mt-6 w-full py-3.5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
-                style={{ background: 'var(--color-brand)', boxShadow: 'var(--shadow-md)' }}
+                style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
               >
                 {busy ? 'Sending…' : 'Send OTP'}
               </button>
@@ -166,7 +166,7 @@ export default function LoginPage() {
                 type="submit"
                 disabled={busy || otp.length !== 6}
                 className="tap mt-6 w-full py-3.5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
-                style={{ background: 'var(--color-brand)', boxShadow: 'var(--shadow-md)' }}
+                style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
               >
                 {busy ? 'Verifying…' : 'Verify & Continue'}
               </button>

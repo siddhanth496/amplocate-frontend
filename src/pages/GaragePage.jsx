@@ -89,7 +89,7 @@ export default function GaragePage() {
     <div className="max-w-3xl mx-auto p-4 lg:p-8 pb-24 screen-fade">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">My garage</h1>
+          <h1 className="font-display text-xl font-bold">My garage</h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
             Your EVs power compatibility filtering and trip planning.
           </p>
@@ -97,7 +97,7 @@ export default function GaragePage() {
         <button
           onClick={() => navigate('/add-vehicle')}
           className="tap flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-bold text-white"
-          style={{ background: 'var(--color-brand)', boxShadow: 'var(--shadow-md)' }}
+          style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
         >
           <Plus size={16} /> Add EV
         </button>

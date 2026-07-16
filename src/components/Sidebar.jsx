@@ -26,7 +26,7 @@ export default function Sidebar() {
       }}
     >
       <div className="px-5 pt-6 pb-8">
-        <Logo size={34} wordmarkClass="text-xl" />
+        <Logo size={36} wordmarkClass="text-xl" tagline />
       </div>
 
       <nav className="flex-1 px-3 space-y-1">
@@ -36,9 +36,9 @@ export default function Sidebar() {
             <button
               key={path}
               onClick={() => navigate(path)}
-              className="tap w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors"
+              className="tap w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
               style={{
-                background: active ? 'var(--color-brand-light)' : 'transparent',
+                background: active ? 'var(--amp-gradient-soft)' : 'transparent',
                 color: active ? 'var(--color-brand)' : 'var(--color-text-secondary)',
               }}
             >

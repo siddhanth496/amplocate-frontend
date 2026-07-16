@@ -93,7 +93,7 @@ export default function ChargerDetailsPage() {
           <div className="p-5 lg:p-6 rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div className="min-w-0">
-                <h1 className="text-xl lg:text-2xl font-bold leading-tight">{charger.name}</h1>
+                <h1 className="font-display text-xl lg:text-2xl font-bold leading-tight">{charger.name}</h1>
                 <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
                   {charger.operator} · {charger.address || charger.city}
                 </p>
@@ -120,7 +120,7 @@ export default function ChargerDetailsPage() {
                 href={`https://www.google.com/maps/dir/?api=1&destination=${charger.lat},${charger.lng}`}
                 target="_blank" rel="noreferrer"
                 className="tap flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold text-white"
-                style={{ background: 'var(--color-brand)', boxShadow: 'var(--shadow-md)' }}
+                style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
               >
                 <Navigation size={16} /> Navigate
               </a>

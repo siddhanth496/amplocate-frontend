@@ -269,7 +269,7 @@ export default function TripPlannerPage() {
         style={{ borderRight: '1px solid var(--color-border)' }}>
         <div className="p-4 lg:p-5 pb-24 lg:pb-8 space-y-3.5">
           <div>
-            <h1 className="text-lg font-bold flex items-center gap-2">
+            <h1 className="font-display text-lg font-bold flex items-center gap-2">
               <RouteIcon size={19} style={{ color: 'var(--color-brand)' }} /> Plan a trip
             </h1>
             <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
@@ -346,7 +346,7 @@ export default function TripPlannerPage() {
               onClick={submit}
               disabled={!readyToPlan || busy}
               className="tap w-full py-3.5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
-              style={{ background: 'var(--color-brand)', boxShadow: 'var(--shadow-md)' }}
+              style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
             >
               {busy ? 'Planning your trip…'
                 : !dest ? 'Choose a destination'

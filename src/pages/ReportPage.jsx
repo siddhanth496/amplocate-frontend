@@ -62,7 +62,7 @@ export default function ReportPage() {
     const filtered = nearby.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
     return (
       <div className="max-w-2xl mx-auto p-4 lg:p-8 pb-24 screen-fade">
-        <h1 className="text-xl font-bold">Report a charger</h1>
+        <h1 className="font-display text-xl font-bold">Report a charger</h1>
         <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
           Pick the station you want to report on.
         </p>
@@ -126,7 +126,7 @@ export default function ReportPage() {
       <button onClick={() => navigate(-1)} className="tap flex items-center gap-1 text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
         <ChevronLeft size={16} /> Back
       </button>
-      <h1 className="text-xl font-bold mt-3">What did you find?</h1>
+      <h1 className="font-display text-xl font-bold mt-3">What did you find?</h1>
       {charger && (
         <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
           Reporting on <span className="font-semibold">{charger.name}</span> · {charger.operator}
@@ -168,7 +168,7 @@ export default function ReportPage() {
         onClick={submit}
         disabled={!type || busy}
         className="tap mt-5 w-full py-3.5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
-        style={{ background: 'var(--color-brand)', boxShadow: 'var(--shadow-md)' }}
+        style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
       >
         {busy ? 'Submitting…' : 'Submit report'}
       </button>

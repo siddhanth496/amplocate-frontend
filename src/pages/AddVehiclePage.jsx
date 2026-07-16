@@ -34,7 +34,7 @@ export default function AddVehiclePage() {
       <button onClick={() => navigate(-1)} className="tap flex items-center gap-1 text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
         <ChevronLeft size={16} /> Back
       </button>
-      <h1 className="text-xl font-bold mt-3">Add your EV</h1>
+      <h1 className="font-display text-xl font-bold mt-3">Add your EV</h1>
       <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
         We use this to show compatible chargers and plan safe trips.
       </p>
@@ -96,7 +96,7 @@ export default function AddVehiclePage() {
           <input type="range" min={5} max={100} value={soc} onChange={(e) => setSoc(Number(e.target.value))} className="w-full mt-2" />
           <button onClick={submit} disabled={busy}
             className="tap mt-4 w-full py-3.5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
-            style={{ background: 'var(--color-brand)', boxShadow: 'var(--shadow-md)' }}>
+            style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}>
             {busy ? 'Adding…' : `Add ${selected.make} ${selected.model}`}
           </button>
         </div>

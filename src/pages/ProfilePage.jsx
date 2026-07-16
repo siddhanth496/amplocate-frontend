@@ -23,7 +23,7 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-xl mx-auto p-4 lg:p-8 pb-24 screen-fade">
-      <h1 className="text-xl font-bold">Profile</h1>
+      <h1 className="font-display text-xl font-bold">Profile</h1>
 
       <div className="mt-5 p-5 rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <div className="flex items-center gap-4">
