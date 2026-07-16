@@ -275,6 +275,8 @@ export default function TripPlannerPage() {
   const [soc, setSoc] = useState(80);
   const [activeField, setActiveField] = useState('dest');
   const [pins, setPins] = useState({});
+  // waypoint index -> charger id: "I'll charge here" declarations (hop mechanic)
+  const [wpCharges, setWpCharges] = useState({});
   const [plan, setPlan] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -320,13 +322,22 @@ export default function TripPlannerPage() {
   };
   const removeWaypoint = (i) => {
     setPlan(null); setPins({});
+    setWpCharges((c) => {
+      const next = {};
+      for (const [k, v] of Object.entries(c)) {
+        const idx = Number(k);
+        if (idx === i) continue;
+        next[idx > i ? idx - 1 : idx] = v;
+      }
+      return next;
+    });
     setPoints((p) => ({ ...p, waypoints: p.waypoints.filter((_, x) => x !== i) }));
     setActiveField(null);
   };
   const swap = () => { setPlan(null); setPins({}); setPoints((p) => ({ ...p, origin: p.dest, dest: p.origin })); };
 
-  const runPlan = async (pinned = pins) => {
-    const wps = points.waypoints.filter(Boolean);
+  const runPlan = async (pinned = pins, wpsOverride = null, chargesOverride = null) => {
+    const wps = wpsOverride ?? points.waypoints.filter(Boolean);
     if (!points.origin || !points.dest || !vehicleId) return;
     setBusy(true); setError(null);
     try {
@@ -337,6 +348,9 @@ export default function TripPlannerPage() {
         vehicle_id: vehicleId,
         departure_soc: soc,
         pinned_chargers: Object.fromEntries(Object.entries(pinned).map(([k, v]) => [String(k), v])),
+        waypoint_charges: Object.fromEntries(
+          Object.entries(chargesOverride ?? wpCharges).map(([k, v]) => [String(k), v]),
+        ),
       });
       setPlan(res);
       saveRecent(points.origin, wps, points.dest);
@@ -533,9 +547,59 @@ export default function TripPlannerPage() {
                 <Timeline plan={plan} points={points} soc={soc} navigate={navigate}
                   onPickAlternative={pickAlternative} busy={busy} />
               ) : (
-                <div className="p-4 rounded-2xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
-                  {plan.note}
-                </div>
+                <>
+                  <div className="p-4 rounded-2xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
+                    {plan.note}
+                  </div>
+                  {plan.suggestions?.length > 0 && (
+                    <div className="p-4 rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+                      <div className="flex items-center gap-2">
+                        <BatteryCharging size={15} style={{ color: 'var(--color-brand)' }} />
+                        <div className="font-display text-sm font-bold">Chargers you can reach right now</div>
+                      </div>
+                      <p className="text-[11px] mt-0.5 mb-3" style={{ color: 'var(--color-text-tertiary)' }}>
+                        Add one as a stop — you'll charge there, then we replan the rest.
+                      </p>
+                      <div className="space-y-2">
+                        {plan.suggestions.map((s) => (
+                          <div key={s.charger.id} className="p-3 rounded-2xl" style={{ background: 'var(--color-surface-alt)' }}>
+                            <div className="flex items-center gap-2.5">
+                              <RelRing score={s.charger.reliability_score} size={34} />
+                              <div className="min-w-0 flex-1">
+                                <div className="text-xs font-bold truncate">{s.charger.name}</div>
+                                <div className="text-[10px]" style={{ color: 'var(--color-text-tertiary)' }}>
+                                  arrive at {Math.round(s.arrival_soc)}% · charge to {Math.round(s.target_soc)}% in ~{Math.round(s.dwell_minutes)} min
+                                </div>
+                              </div>
+                              <button
+                                disabled={busy}
+                                onClick={() => {
+                                  const wp = { label: `⚡ ${s.charger.name}`, lat: s.charger.lat, lng: s.charger.lng };
+                                  const wps = [...points.waypoints.filter(Boolean)];
+                                  wps.splice(s.leg_index, 0, wp);
+                                  const charges = {};
+                                  for (const [k, v] of Object.entries(wpCharges)) {
+                                    const idx = Number(k);
+                                    charges[idx >= s.leg_index ? idx + 1 : idx] = v;
+                                  }
+                                  charges[s.leg_index] = s.charger.id;
+                                  setWpCharges(charges);
+                                  setPoints((p) => ({ ...p, waypoints: wps }));
+                                  setPins({});
+                                  runPlan({}, wps, charges);
+                                }}
+                                className="tap shrink-0 px-3 py-2 rounded-xl text-[11px] font-bold disabled:opacity-40"
+                                style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
+                              >
+                                Add as stop
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
