@@ -58,10 +58,10 @@ export default function LoginPage() {
       {/* Left brand panel (desktop) */}
       <div
         className="hidden lg:flex flex-col justify-between w-[44%] p-12"
-        style={{ background: 'linear-gradient(150deg, #1e3a8a 0%, #1d4ed8 40%, #0ea5e9 100%)' }}
+        style={{ background: 'linear-gradient(150deg, #0b0f04 0%, #1f3007 45%, #4d7c0f 100%)' }}
       >
         <div className="flex items-center gap-2.5">
-          <svg width={36} height={36} viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#fff" /><path d="M35 10 L18 37 h11 l-4 17 L44 26 h-11 z" fill="#2563eb" /></svg>
+          <svg width={36} height={36} viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#a3e635" /><path d="M35 10 L18 37 h11 l-4 17 L44 26 h-11 z" fill="#10150a" /></svg>
           <span className="text-xl font-bold text-white tracking-tight">Amplocate</span>
         </div>
         <div>

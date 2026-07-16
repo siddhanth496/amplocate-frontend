@@ -6,10 +6,10 @@ export function relColor(score) {
 }
 
 export function relHex(score) {
-  if (score >= 0.85) return '#059669';
-  if (score >= 0.7) return '#10b981';
-  if (score >= 0.5) return '#f59e0b';
-  return '#ef4444';
+  if (score >= 0.85) return '#a3e635';
+  if (score >= 0.7) return '#4ade80';
+  if (score >= 0.5) return '#fbbf24';
+  return '#f87171';
 }
 
 export function relLabel(score) {

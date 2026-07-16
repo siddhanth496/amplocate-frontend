@@ -7,6 +7,7 @@ import {
 import MapView from '../components/MapView';
 import LocationSearch from '../components/LocationSearch';
 import { AmpMark } from '../components/Logo';
+import { ChargerCardSkeleton } from '../components/Skeleton';
 import { getNearby } from '../common/api/chargers';
 import { listMyVehicles } from '../common/api/vehicles';
 import { relColor, relLabel, relPct, timeAgo, connectorLabel, maxPowerKw } from '../common/utils/reliability';
@@ -246,11 +247,17 @@ export default function HomePage() {
           <div className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>Try widening the radius or removing filters.</div>
         </div>
       )}
-      <div className="space-y-2.5 animate-stagger">
-        {chargers.map((c) => (
-          <ChargerCard key={c.id} charger={c} onClick={() => navigate(`/charger/${c.id}`)} />
-        ))}
-      </div>
+      {loading && chargers.length === 0 ? (
+        <div className="space-y-2.5">
+          {[0, 1, 2, 3].map((i) => <ChargerCardSkeleton key={i} />)}
+        </div>
+      ) : (
+        <div className="space-y-2.5 animate-stagger" style={{ opacity: loading ? 0.55 : 1, transition: 'opacity 0.2s' }}>
+          {chargers.map((c) => (
+            <ChargerCard key={c.id} charger={c} onClick={() => navigate(`/charger/${c.id}`)} />
+          ))}
+        </div>
+      )}
     </>
   );
 

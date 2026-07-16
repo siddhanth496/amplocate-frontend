@@ -376,10 +376,10 @@ export default function TripPlannerPage() {
 
   const markers = useMemo(() => {
     const m = [];
-    if (points.origin) m.push({ pos: [points.origin.lat, points.origin.lng], color: '#2563eb', label: 'Start' });
+    if (points.origin) m.push({ pos: [points.origin.lat, points.origin.lng], color: '#a3e635', label: 'Start' });
     points.waypoints.filter(Boolean).forEach((w, i) =>
       m.push({ pos: [w.lat, w.lng], color: '#d97706', label: `Stop ${i + 1}` }));
-    if (points.dest) m.push({ pos: [points.dest.lat, points.dest.lng], color: '#e11d48', label: 'End' });
+    if (points.dest) m.push({ pos: [points.dest.lat, points.dest.lng], color: '#fb7185', label: 'End' });
     return m;
   }, [points]);
 
@@ -491,7 +491,7 @@ export default function TripPlannerPage() {
             <div className="space-y-3 screen-fade">
               {/* Gradient summary hero */}
               <div className="p-5 rounded-3xl text-white relative overflow-hidden"
-                style={{ background: 'linear-gradient(135deg, #0f2167 0%, #1d4ed8 55%, #0ea5e9 130%)', boxShadow: 'var(--shadow-brand)' }}>
+                style={{ background: 'linear-gradient(135deg, #0d1104 0%, #24380a 55%, #4d7c0f 130%)', border: '1px solid rgba(163,230,53,0.25)', boxShadow: 'var(--shadow-brand)' }}>
                 <div className="flex items-center justify-between">
                   <div className="font-display text-base font-bold">
                     {plan.feasible ? (chargeStops.length === 0 ? 'No charging needed ⚡' : `${chargeStops.length} charging stop${chargeStops.length > 1 ? 's' : ''}`) : 'Not safely plannable'}

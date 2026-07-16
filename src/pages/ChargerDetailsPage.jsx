@@ -75,9 +75,18 @@ export default function ChargerDetailsPage() {
     );
   }
   if (!charger) {
-    return <div className="h-full flex items-center justify-center">
-      <div className="spin rounded-full" style={{ width: 32, height: 32, border: '3px solid var(--color-surface-2)', borderTopColor: 'var(--color-brand)' }} />
-    </div>;
+    return (
+      <div className="max-w-5xl mx-auto p-4 lg:p-8 space-y-5">
+        <div className="skeleton" style={{ width: 110, height: 16, borderRadius: 8 }} />
+        <div className="grid lg:grid-cols-[1fr_360px] gap-5">
+          <div className="space-y-5">
+            <div className="skeleton" style={{ width: '100%', height: 200, borderRadius: 24 }} />
+            <div className="skeleton" style={{ width: '100%', height: 140, borderRadius: 24 }} />
+          </div>
+          <div className="skeleton hidden lg:block" style={{ width: '100%', height: 420, borderRadius: 24 }} />
+        </div>
+      </div>
+    );
   }
 
   return (

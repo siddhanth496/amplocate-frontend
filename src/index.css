@@ -5,60 +5,60 @@
   --font-display: 'Space Grotesk', 'Inter', ui-sans-serif, sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', ui-monospace, monospace;
 
-  /* ── Amplocate light professional palette ── */
-  --color-bg:            #f5f7fa;
-  --color-surface:       #ffffff;
-  --color-surface-alt:   #f0f3f7;
-  --color-surface-2:     #e8edf3;
-  --color-surface-hover: #f0f3f7;
+  /* ── Amplocate dark: charcoal + volt green ── */
+  --color-bg:            #0c0e10;
+  --color-surface:       #15181c;
+  --color-surface-alt:   #1b1f24;
+  --color-surface-2:     #23282e;
+  --color-surface-hover: #1b1f24;
 
-  /* ── Electric blue brand ── */
-  --color-brand:        #2563eb;
-  --color-brand-hover:  #1d4ed8;
-  --color-brand-light:  #eff4ff;
-  --color-accent:       #2563eb;
-  --color-accent-hover: #1d4ed8;
+  /* ── Volt brand ── */
+  --color-brand:        #a3e635;
+  --color-brand-hover:  #bef264;
+  --color-brand-light:  rgba(163,230,53,0.12);
+  --color-accent:       #a3e635;
+  --color-accent-hover: #bef264;
 
-  /* legacy alias (was lime in the dark theme) */
-  --color-lime:        #2563eb;
-  --color-lime-dim:    #1d4ed8;
+  /* legacy alias */
+  --color-lime:        #a3e635;
+  --color-lime-dim:    #84cc16;
 
   /* ── Reliability tier colors ── */
-  --color-rel-excellent: #059669;
-  --color-rel-good:      #10b981;
-  --color-rel-moderate:  #f59e0b;
-  --color-rel-poor:      #ef4444;
+  --color-rel-excellent: #a3e635;
+  --color-rel-good:      #4ade80;
+  --color-rel-moderate:  #fbbf24;
+  --color-rel-poor:      #f87171;
 
   /* ── Semantic aliases ── */
-  --color-emerald:       #059669;
-  --color-emerald-light: #ecfdf5;
-  --color-rose:          #e11d48;
-  --color-rose-light:    #fff1f2;
-  --color-amber:         #d97706;
-  --color-amber-light:   #fffbeb;
+  --color-emerald:       #4ade80;
+  --color-emerald-light: rgba(74,222,128,0.12);
+  --color-rose:          #fb7185;
+  --color-rose-light:    rgba(251,113,133,0.12);
+  --color-amber:         #fbbf24;
+  --color-amber-light:   rgba(251,191,36,0.12);
 
   /* ── Borders ── */
-  --color-border:       rgba(15,23,42,0.08);
-  --color-border-light: rgba(15,23,42,0.05);
-  --color-border-dark:  rgba(15,23,42,0.14);
+  --color-border:       rgba(240,245,235,0.08);
+  --color-border-light: rgba(240,245,235,0.05);
+  --color-border-dark:  rgba(240,245,235,0.16);
 
   /* ── Text ── */
-  --color-text-primary:   #0f172a;
-  --color-text-secondary: #55606e;
-  --color-text-tertiary:  #8a94a1;
+  --color-text-primary:   #f2f5ee;
+  --color-text-secondary: #a9b1a3;
+  --color-text-tertiary:  #6f7869;
 
-  /* ── Shadows (soft, light-friendly) ── */
-  --shadow-sm: 0 1px 2px rgba(15,23,42,0.05), 0 1px 3px rgba(15,23,42,0.06);
-  --shadow-md: 0 4px 16px -4px rgba(15,23,42,0.10);
-  --shadow-lg: 0 16px 40px -12px rgba(15,23,42,0.18);
-  --shadow-nav: 0 -1px 0 rgba(15,23,42,0.06);
-  --shadow-brand: 0 6px 20px -6px rgba(37,99,235,0.45);
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+  --shadow-md: 0 6px 20px -6px rgba(0,0,0,0.65);
+  --shadow-lg: 0 18px 44px -12px rgba(0,0,0,0.8);
+  --shadow-nav: 0 -1px 0 rgba(240,245,235,0.08);
+  --shadow-brand: 0 6px 24px -6px rgba(163,230,53,0.35);
 }
 
-/* ── Amplocate brand: "Live Current" gradient + display face ── */
+/* ── Amplocate brand: "Volt Current" gradient + display face ── */
 :root {
-  --amp-gradient: linear-gradient(118deg, #1d4ed8 0%, #2563eb 45%, #0ea5e9 100%);
-  --amp-gradient-soft: linear-gradient(118deg, rgba(29,78,216,0.08), rgba(14,165,233,0.10));
+  --amp-gradient: linear-gradient(118deg, #65a30d 0%, #a3e635 60%, #d4f76a 100%);
+  --amp-gradient-soft: linear-gradient(118deg, rgba(101,163,13,0.14), rgba(163,230,53,0.10));
 }
 
 .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
@@ -71,18 +71,39 @@
   color: transparent;
 }
 
-/* glass panel for overlays on maps */
+/* Bright volt surfaces need dark ink — overrides text-white utilities on CTAs */
+.amp-gradient-bg,
+[style*="--amp-gradient)"] {
+  color: #141b04 !important;
+}
+
+/* glass panel for overlays on maps (dark) */
 .glass {
-  background: rgba(255,255,255,0.82);
-  backdrop-filter: blur(14px) saturate(170%);
-  -webkit-backdrop-filter: blur(14px) saturate(170%);
-  border: 1px solid rgba(255,255,255,0.65);
+  background: rgba(18,21,25,0.82);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid rgba(240,245,235,0.09);
   box-shadow: var(--shadow-md);
 }
 
 /* lift on hover for cards */
 .card-lift { transition: transform 0.18s ease, box-shadow 0.18s ease; }
 .card-lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+/* ── Skeleton shimmer loaders ── */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--color-surface-alt) 25%,
+    var(--color-surface-2) 50%,
+    var(--color-surface-alt) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 12px;
+}
 
 @layer base {
   html, body, #root {
@@ -114,8 +135,13 @@
     border-radius: 50%;
     background: var(--color-brand);
     cursor: pointer;
-    border: 3px solid #fff;
-    box-shadow: 0 1px 6px rgba(37,99,235,0.35);
+    border: 3px solid var(--color-bg);
+    box-shadow: 0 1px 8px rgba(163,230,53,0.45);
+  }
+
+  select, option {
+    background-color: var(--color-surface-alt);
+    color: var(--color-text-primary);
   }
 }
 
@@ -130,21 +156,23 @@
   .tabular-nums { font-variant-numeric: tabular-nums; }
 }
 
-/* ── Map grid background (light) ── */
+/* ── Map grid background (dark) ── */
 .map-grid {
-  background-color: #e9eef4;
+  background-color: #101317;
   background-image:
-    linear-gradient(rgba(37,99,235,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37,99,235,0.05) 1px, transparent 1px);
+    linear-gradient(rgba(163,230,53,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(163,230,53,0.05) 1px, transparent 1px);
   background-size: 32px 32px, 32px 32px;
 }
 
-/* ── Leaflet overrides ── */
+/* ── Leaflet overrides (dark) ── */
 .leaflet-container {
   font-family: var(--font-sans);
-  background: #e9eef4;
+  background: #101317;
 }
-.leaflet-popup-content-wrapper {
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
   border-radius: 14px;
   box-shadow: var(--shadow-lg);
 }

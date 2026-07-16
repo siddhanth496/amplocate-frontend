@@ -7,6 +7,7 @@ import {
 import { listMyVehicles } from '../common/api/vehicles';
 import { getMyStats } from '../common/api/users';
 import { connectorLabel, timeAgo } from '../common/utils/reliability';
+import { HeroSkeleton, StatCardSkeleton, Skeleton } from '../components/Skeleton';
 
 const AC_FALLBACK_KW = 7.4;
 
@@ -37,10 +38,10 @@ function VehicleHero({ vehicle }) {
 
   return (
     <div className="p-5 lg:p-6 rounded-3xl text-white relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #0f2167 0%, #1d4ed8 55%, #0ea5e9 130%)', boxShadow: 'var(--shadow-brand)' }}>
+      style={{ background: 'linear-gradient(135deg, #0d1104 0%, #24380a 55%, #4d7c0f 130%)', border: '1px solid rgba(163,230,53,0.25)', boxShadow: 'var(--shadow-brand)' }}>
       {/* faint bolt watermark */}
       <svg viewBox="0 0 64 64" className="absolute -right-4 -bottom-6 opacity-10" width={160} height={160}>
-        <path d="M35 10 L18 37 h11 l-4 17 L44 26 h-11 z" fill="#fff" />
+        <path d="M35 10 L18 37 h11 l-4 17 L44 26 h-11 z" fill="#a3e635" />
       </svg>
 
       <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.7)' }}>
@@ -111,9 +112,18 @@ export default function DashboardPage() {
     return <div className="max-w-3xl mx-auto p-6"><div className="p-4 rounded-2xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>{error}</div></div>;
   }
   if (!vehicles || !stats) {
-    return <div className="h-full flex items-center justify-center">
-      <div className="spin rounded-full" style={{ width: 32, height: 32, border: '3px solid var(--color-surface-2)', borderTopColor: 'var(--color-brand)' }} />
-    </div>;
+    return (
+      <div className="max-w-3xl mx-auto p-4 lg:p-8 space-y-4">
+        <div className="space-y-2">
+          <Skeleton w={160} h={22} />
+          <Skeleton w={240} h={13} />
+        </div>
+        <HeroSkeleton />
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {[0, 1, 2, 3, 4, 5].map((i) => <StatCardSkeleton key={i} />)}
+        </div>
+      </div>
+    );
   }
 
   return (

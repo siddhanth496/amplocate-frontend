@@ -18,7 +18,7 @@ export default function BottomNav() {
       id="bottom-navigation"
       className="lg:hidden safe-bottom shrink-0"
       style={{
-        background: 'rgba(255,255,255,0.94)',
+        background: 'rgba(15,17,20,0.92)',
         backdropFilter: 'blur(16px) saturate(160%)',
         WebkitBackdropFilter: 'blur(16px) saturate(160%)',
         borderTop: '1px solid var(--color-border)',
