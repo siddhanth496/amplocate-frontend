@@ -1,4 +1,4 @@
-import { Map, Route, Car, Flag, User, LogOut } from 'lucide-react';
+import { Map, Route, Car, Flag, User, LogOut, Gauge } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Logo from './Logo';
 import { useAuth } from '../contexts/useAuth';
@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/useAuth';
 const NAV_ITEMS = [
   { path: '/',             icon: Map,   label: 'Discover',     match: (p) => p === '/' || p.startsWith('/charger') },
   { path: '/trip-planner', icon: Route, label: 'Trip Planner', match: (p) => p.startsWith('/trip') },
+  { path: '/dashboard',    icon: Gauge, label: 'Dashboard',    match: (p) => p === '/dashboard' },
   { path: '/report',       icon: Flag,  label: 'Report',       match: (p) => p.startsWith('/report') },
   { path: '/garage',       icon: Car,   label: 'Garage',       match: (p) => p === '/garage' || p === '/add-vehicle' },
   { path: '/profile',      icon: User,  label: 'Profile',      match: (p) => p === '/profile' },

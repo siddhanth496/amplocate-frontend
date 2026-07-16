@@ -9,6 +9,7 @@ import ChargerDetailsPage from './pages/ChargerDetailsPage';
 import AddVehiclePage from './pages/AddVehiclePage';
 import ReportPage from './pages/ReportPage';
 import TripPlannerPage from './pages/TripPlannerPage';
+import DashboardPage from './pages/DashboardPage';
 import GaragePage from './pages/GaragePage';
 import ProfilePage from './pages/ProfilePage';
 import './App.css';
@@ -51,6 +52,7 @@ function Shell() {
             <Route path="/report" element={<RequireAuth><ReportPage /></RequireAuth>} />
             <Route path="/report/:chargerId" element={<RequireAuth><ReportPage /></RequireAuth>} />
             <Route path="/trip-planner" element={<RequireAuth><TripPlannerPage /></RequireAuth>} />
+            <Route path="/dashboard" element={<RequireAuth><DashboardPage /></RequireAuth>} />
             <Route path="/garage" element={<RequireAuth><GaragePage /></RequireAuth>} />
             <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
             <Route path="*" element={<Navigate to="/" replace />} />

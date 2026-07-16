@@ -7,3 +7,8 @@ export function getMe(options = {}) {
 export function updateMe(updates) {
   return api.patch('/auth/me', updates);
 }
+
+/** Aggregate EV stats for the dashboard. */
+export function getMyStats(options = {}) {
+  return api.get('/auth/me/stats', { signal: options.signal });
+}
