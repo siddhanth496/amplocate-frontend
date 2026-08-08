@@ -5,6 +5,7 @@ import {
   CheckCircle2, XCircle, Car, Users, Coffee,
 } from 'lucide-react';
 import MapView from '../components/MapView';
+import { markChargerViewed } from '../components/GettingStarted';
 import { getCharger } from '../common/api/chargers';
 import { submitReport } from '../common/api/reports';
 import { relColor, relLabel, relPct, timeAgo, connectorLabel } from '../common/utils/reliability';
@@ -51,7 +52,7 @@ export default function ChargerDetailsPage() {
   const [reportDone, setReportDone] = useState(null);
 
   const load = () => getCharger(id).then(setCharger).catch((e) => setError(e.message));
-  useEffect(() => { load(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); markChargerViewed(); }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const quickReport = async (type) => {
     setReporting(type); setReportDone(null);

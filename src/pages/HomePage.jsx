@@ -2,12 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LocateFixed, SlidersHorizontal, Zap, Navigation, ShieldCheck, X,
-  BatteryMedium, Car, ChevronRight, Sparkles,
+  BatteryMedium, Car, ChevronRight, Sparkles, Info,
 } from 'lucide-react';
 import MapView from '../components/MapView';
 import LocationSearch from '../components/LocationSearch';
 import { AmpMark } from '../components/Logo';
 import { ChargerCardSkeleton } from '../components/Skeleton';
+import GettingStarted from '../components/GettingStarted';
 import { getNearby } from '../common/api/chargers';
 import { listMyVehicles } from '../common/api/vehicles';
 import { relColor, relLabel, relPct, timeAgo, connectorLabel, maxPowerKw } from '../common/utils/reliability';
@@ -166,6 +167,8 @@ export default function HomePage() {
     [vehicles, vehicleId],
   );
   const compatibleCount = useMemo(() => chargers.filter((c) => c.compatible).length, [chargers]);
+  const setConnectorFilterReset = () =>
+    setFilters({ connector_type: null, min_reliability: null, radius_km: 25 });
   const reliableCount = useMemo(() => chargers.filter((c) => c.reliability_score >= 0.8).length, [chargers]);
 
   const vehiclePill = defaultVehicle ? (
@@ -236,15 +239,48 @@ export default function HomePage() {
 
   const listBody = (
     <>
+      <GettingStarted hasVehicle={!!defaultVehicle} />
+
+      {!loading && chargers.length > 0 && (
+        <div className="flex items-start gap-2 px-1 pb-0.5">
+          <Info size={12} style={{ color: 'var(--color-text-tertiary)', marginTop: 2 }} className="shrink-0" />
+          <p className="text-[11px] leading-snug" style={{ color: 'var(--color-text-tertiary)' }}>
+            The ring shows how likely a charger is to be working, based on recent driver reports.
+            Green is good, red means recent failures. Tap any charger for details.
+          </p>
+        </div>
+      )}
+
       {error && (
         <div className="p-4 rounded-3xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
           {error}
         </div>
       )}
       {!loading && !error && chargers.length === 0 && (
-        <div className="p-8 text-center rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px dashed var(--color-border-dark)' }}>
-          <div className="text-sm font-semibold">No chargers found</div>
-          <div className="text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>Try widening the radius or removing filters.</div>
+        <div className="p-7 text-center rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px dashed var(--color-border-dark)' }}>
+          <div className="mx-auto w-11 h-11 rounded-full flex items-center justify-center" style={{ background: 'var(--color-surface-alt)' }}>
+            <SlidersHorizontal size={18} style={{ color: 'var(--color-text-tertiary)' }} />
+          </div>
+          <div className="text-sm font-semibold mt-3">No chargers in this area</div>
+          <div className="text-xs mt-1 max-w-xs mx-auto" style={{ color: 'var(--color-text-tertiary)' }}>
+            Try searching a different area above, widening the radius, or clearing your filters.
+          </div>
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <button
+              onClick={() => { setConnectorFilterReset(); }}
+              className="tap text-xs font-bold px-4 py-2.5 rounded-xl"
+              style={{ background: 'var(--color-brand-light)', color: 'var(--color-brand)' }}
+            >
+              Clear filters
+            </button>
+            <button
+              onClick={() => setFilters((f) => ({ ...f, radius_km: Math.min(100, f.radius_km + 25) }))}
+              className="tap text-xs font-bold px-4 py-2.5 rounded-xl"
+              style={{ background: 'var(--color-surface-alt)', color: 'var(--color-text-secondary)' }}
+            >
+              Search wider
+            </button>
+          </div>
         </div>
       )}
       {loading && chargers.length === 0 ? (

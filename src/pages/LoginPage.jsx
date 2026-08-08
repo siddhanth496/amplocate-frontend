@@ -47,7 +47,9 @@ export default function LoginPage() {
     try {
       const res = await verifyOtp(phone, otp);
       signIn(res.access_token, res.is_new_user);
-      navigate(res.is_new_user ? '/add-vehicle' : (location.state?.from || '/'), { replace: true });
+      // New users land on Discover so the welcome overlay can explain the app
+      // before asking them to fill in a form.
+      navigate(location.state?.from || '/', { replace: true });
     } catch (err) {
       setError(err.message);
     } finally { setBusy(false); }
