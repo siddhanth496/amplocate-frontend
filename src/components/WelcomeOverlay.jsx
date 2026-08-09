@@ -43,7 +43,7 @@ function SlideArt({ kind }) {
           strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * 0.12}
           transform="rotate(-90 48 48)" />
         <text x="48" y="54" textAnchor="middle" fontSize="20" fontWeight="700"
-          fill="var(--color-text-primary)" fontFamily="Space Grotesk, sans-serif">88</text>
+          fill="var(--color-text-primary)" fontFamily="Inter Tight, sans-serif">88</text>
       </svg>
     );
   }
@@ -85,8 +85,8 @@ export default function WelcomeOverlay({ onClose }) {
 
   return (
     <div className="fixed inset-0 flex items-end sm:items-center justify-center p-4"
-      style={{ background: 'rgba(6,8,10,0.72)', backdropFilter: 'blur(6px)', zIndex: 2000 }}>
-      <div className="w-full max-w-md rounded-3xl p-6 screen-fade relative"
+      style={{ background: 'rgba(14,16,19,0.42)', backdropFilter: 'blur(6px)', zIndex: 2000 }}>
+      <div className="w-full max-w-md rounded-2xl p-6 screen-fade relative"
         style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-lg)' }}>
 
         <button onClick={() => finish(false)} aria-label="Skip introduction"
@@ -97,9 +97,7 @@ export default function WelcomeOverlay({ onClose }) {
 
         <div className="flex items-center gap-2.5">
           <AmpMark size={30} />
-          <span className="font-display font-bold">
-            Amp<span className="amp-gradient-text">locate</span>
-          </span>
+          <span className="font-display font-bold" style={{ letterSpacing: '-0.035em' }}>Amplocate</span>
         </div>
 
         <div className="flex items-center justify-center h-32 mt-5">
@@ -132,7 +130,7 @@ export default function WelcomeOverlay({ onClose }) {
           )}
           <button
             onClick={() => (last ? finish(true) : setI(i + 1))}
-            className="tap flex items-center gap-1.5 px-5 py-2.5 rounded-2xl text-sm font-bold text-white"
+            className="tap flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-bold text-white"
             style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
           >
             {last ? 'Add my EV' : 'Next'} <ChevronRight size={15} />

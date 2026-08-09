@@ -1,4 +1,4 @@
-import { Map, Route, Gauge, Car, User } from 'lucide-react';
+import { Map, Route, Car, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const NAV_ITEMS = [
@@ -17,9 +17,7 @@ export default function BottomNav() {
       id="bottom-navigation"
       className="lg:hidden safe-bottom shrink-0"
       style={{
-        background: 'rgba(15,17,20,0.92)',
-        backdropFilter: 'blur(16px) saturate(160%)',
-        WebkitBackdropFilter: 'blur(16px) saturate(160%)',
+        background: 'var(--color-surface)',
         borderTop: '1px solid var(--color-border)',
         display: 'flex',
         padding: '6px 8px',
@@ -32,11 +30,11 @@ export default function BottomNav() {
           <button
             key={path}
             onClick={() => navigate(path)}
-            className="tap flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-xl"
+            className="tap flex-1 flex flex-col items-center gap-1 py-1.5 rounded-xl"
             style={{ color: active ? 'var(--color-brand)' : 'var(--color-text-tertiary)' }}
           >
-            <Icon size={21} strokeWidth={active ? 2.4 : 2} />
-            <span className="text-[10px] font-semibold">{label}</span>
+            <Icon size={21} strokeWidth={active ? 2.4 : 1.9} />
+            <span className="text-[11.5px]" style={{ fontWeight: active ? 700 : 500 }}>{label}</span>
           </button>
         );
       })}

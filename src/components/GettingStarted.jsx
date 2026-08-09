@@ -44,7 +44,7 @@ export default function GettingStarted({ hasVehicle }) {
   };
 
   return (
-    <div className="rounded-3xl p-4 relative" style={{ background: 'var(--amp-gradient-soft)', border: '1px solid var(--color-border)' }}>
+    <div className="rounded-2xl p-4 relative" style={{ background: 'var(--amp-gradient-soft)', border: '1px solid var(--color-border)' }}>
       <button onClick={dismiss} aria-label="Dismiss getting started"
         className="tap absolute top-3 right-3 p-1" style={{ color: 'var(--color-text-tertiary)' }}>
         <X size={14} />
@@ -52,7 +52,7 @@ export default function GettingStarted({ hasVehicle }) {
 
       <div className="flex items-center gap-1.5">
         <Sparkles size={13} style={{ color: 'var(--color-brand)' }} />
-        <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--color-brand)' }}>
+        <span className="text-[12.5px] font-bold" style={{ color: 'var(--color-brand)' }}>
           Get started · {doneCount} of {steps.length}
         </span>
       </div>
@@ -63,7 +63,7 @@ export default function GettingStarted({ hasVehicle }) {
             key={label}
             onClick={action || undefined}
             disabled={done || !action}
-            className="tap w-full flex items-center gap-3 p-2.5 rounded-2xl text-left disabled:cursor-default"
+            className="tap w-full flex items-center gap-3 p-2.5 rounded-xl text-left disabled:cursor-default"
             style={{ background: done ? 'transparent' : 'var(--color-surface)', opacity: done ? 0.55 : 1 }}
           >
             <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
@@ -73,7 +73,7 @@ export default function GettingStarted({ hasVehicle }) {
             </div>
             <div className="min-w-0 flex-1">
               <div className={`text-[13px] font-semibold ${done ? 'line-through' : ''}`}>{label}</div>
-              <div className="text-[11px]" style={{ color: 'var(--color-text-tertiary)' }}>{hint}</div>
+              <div className="text-[12.5px]" style={{ color: 'var(--color-text-tertiary)' }}>{hint}</div>
             </div>
             {!done && action && <ChevronRight size={15} style={{ color: 'var(--color-text-tertiary)' }} />}
           </button>

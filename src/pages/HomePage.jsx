@@ -1,109 +1,100 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  LocateFixed, SlidersHorizontal, Zap, Navigation, ShieldCheck, X,
-  BatteryMedium, Car, ChevronRight, Sparkles, Info,
+  LocateFixed, SlidersHorizontal, Zap, Navigation, X,
+  BatteryMedium, Car, ChevronUp, Route as RouteIcon, MapPin,
 } from 'lucide-react';
 import MapView from '../components/MapView';
 import LocationSearch from '../components/LocationSearch';
-import { AmpMark } from '../components/Logo';
 import { ChargerCardSkeleton } from '../components/Skeleton';
 import { getNearby } from '../common/api/chargers';
 import { listMyVehicles } from '../common/api/vehicles';
-import { relColor, relLabel, relPct, timeAgo, connectorLabel, maxPowerKw } from '../common/utils/reliability';
+import { relColor, relTextColor, relLabel, timeAgo, connectorLabel, maxPowerKw } from '../common/utils/reliability';
 
 const DEFAULT_CENTER = [12.9716, 77.5946]; // Bengaluru
 const CONNECTORS = ['CCS2', 'Type2_AC', 'CHAdeMO', 'Bharat_DC001', 'Bharat_AC001', 'Wall_3pin'];
 
-function greeting() {
-  const h = new Date().getHours();
-  if (h < 5) return 'Charging late?';
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
-  return 'Good evening';
+/* ═══════════════════════════════════════════════════════════════════════════
+   Discover is one surface, not two.
+
+   The old screen stacked a map on top of a list; they were separate objects
+   that happened to show the same data. Now the map IS the page and the results
+   live in a sheet that slides over it. Selecting a pin and selecting a row are
+   the same act — whichever you touch, the other follows.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const SNAPS = { peek: 128, half: 0.52, full: 0.92 }; // px, or fraction of height
+
+function sheetHeight(snap, vh) {
+  if (snap === 'peek') return SNAPS.peek;
+  return Math.round(vh * SNAPS[snap]);
 }
 
-/* Mini reliability ring — the brand's recurring motif */
-function RelRing({ score, size = 44 }) {
-  const r = (size - 8) / 2;
-  const c = 2 * Math.PI * r;
-  return (
-    <div className="relative shrink-0" style={{ width: size, height: size }}>
-      <svg width={size} height={size}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-surface-2)" strokeWidth={4} />
-        <circle
-          cx={size / 2} cy={size / 2} r={r} fill="none"
-          stroke={relColor(score)} strokeWidth={4} strokeLinecap="round"
-          strokeDasharray={c} strokeDashoffset={c * (1 - score)}
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
-      </svg>
-      <span className="absolute inset-0 flex items-center justify-center text-[10px] font-bold tabular-nums">
-        {Math.round(score * 100)}
-      </span>
-    </div>
-  );
-}
-
-function ChargerCard({ charger, onClick }) {
+// ─── Charger card ────────────────────────────────────────────────────────────
+function ChargerCard({ charger, selected, onSelect, onOpen }) {
   const power = maxPowerKw(charger);
   const isFast = power >= 50;
   const verdict = relLabel(charger.reliability_score);
-  const tone = relColor(charger.reliability_score);
+  const dot = relColor(charger.reliability_score);
+  const tone = relTextColor(charger.reliability_score);
 
   return (
     <div
-      className="card-lift rounded-3xl overflow-hidden"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}
+      id={`charger-row-${charger.id}`}
+      className="card-lift overflow-hidden"
+      style={{
+        background: 'var(--color-surface)',
+        border: `1px solid ${selected ? 'var(--color-brand)' : 'var(--color-border)'}`,
+        boxShadow: selected ? `0 0 0 3px var(--color-brand-ring)` : 'none',
+        borderRadius: 'var(--radius-lg)',
+      }}
     >
-      <button onClick={onClick} className="tap w-full text-left p-4 pb-3">
-        {/* Verdict first — it is the reason this app exists */}
+      <button onClick={onSelect} className="tap w-full text-left px-4 pt-3.5 pb-3">
+        {/* The verdict is the headline. Everything else is supporting detail. */}
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: tone }} />
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: dot }} />
           <span className="text-[13px] font-bold" style={{ color: tone }}>{verdict}</span>
-          <span className="text-[11px]" style={{ color: 'var(--color-text-tertiary)' }}>
+          <span className="text-[12px]" style={{ color: 'var(--color-text-tertiary)' }}>
             · checked {timeAgo(charger.last_verified_at)}
           </span>
         </div>
 
-        <div className="font-display font-semibold text-[15px] leading-snug truncate mt-1.5">
+        <div className="font-display font-semibold text-[16px] leading-snug truncate mt-1.5"
+          style={{ letterSpacing: '-0.02em' }}>
           {charger.name}
         </div>
-        <div className="text-xs mt-0.5 truncate" style={{ color: 'var(--color-text-tertiary)' }}>
+        <div className="text-[13px] mt-0.5 truncate" style={{ color: 'var(--color-text-secondary)' }}>
           {charger.distance_km} km away · {charger.operator}
+          {charger.price_per_kwh != null && ` · ₹${charger.price_per_kwh}/kWh`}
         </div>
 
         <div className="flex items-center flex-wrap gap-1.5 mt-2.5">
           {charger.compatible === true && (
-            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg flex items-center gap-1"
+            <span className="text-[12px] font-semibold px-2 py-1 rounded-lg flex items-center gap-1"
               style={{ background: 'var(--color-emerald-light)', color: 'var(--color-emerald)' }}>
               <Zap size={11} /> Fits your car
             </span>
           )}
           {charger.compatible === false && (
-            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg"
+            <span className="text-[12px] font-semibold px-2 py-1 rounded-lg"
               style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
               Wrong plug
             </span>
           )}
           {power > 0 && (
-            <span className={`text-[11px] font-bold px-2 py-1 rounded-lg ${isFast ? 'amp-gradient-bg text-white' : ''}`}
-              style={isFast ? {} : { background: 'var(--color-surface-alt)', color: 'var(--color-text-secondary)' }}>
-              {isFast ? `⚡ ${power} kW fast` : `${power} kW`}
-            </span>
-          )}
-          {charger.price_per_kwh != null && (
-            <span className="text-[11px] font-medium px-2 py-1 rounded-lg"
-              style={{ background: 'var(--color-surface-alt)', color: 'var(--color-text-secondary)' }}>
-              ₹{charger.price_per_kwh}/kWh
+            <span className="text-[12px] font-semibold px-2 py-1 rounded-lg"
+              style={{
+                background: isFast ? 'var(--color-brand-light)' : 'var(--color-surface-alt)',
+                color: isFast ? 'var(--color-brand)' : 'var(--color-text-secondary)',
+              }}>
+              {power} kW{isFast ? ' fast' : ''}
             </span>
           )}
         </div>
       </button>
 
-      {/* The thing you actually came to do, one tap from the list */}
       <div className="flex" style={{ borderTop: '1px solid var(--color-border-light)' }}>
-        <button onClick={onClick} className="tap flex-1 py-2.5 text-xs font-semibold"
+        <button onClick={onOpen} className="tap flex-1 py-2.5 text-[13px] font-semibold"
           style={{ color: 'var(--color-text-secondary)' }}>
           Details
         </button>
@@ -112,10 +103,10 @@ function ChargerCard({ charger, onClick }) {
           href={`https://www.google.com/maps/dir/?api=1&destination=${charger.lat},${charger.lng}`}
           target="_blank" rel="noreferrer"
           onClick={(e) => e.stopPropagation()}
-          className="tap flex-1 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"
+          className="tap flex-1 py-2.5 text-[13px] font-bold flex items-center justify-center gap-1.5"
           style={{ color: 'var(--color-brand)' }}
         >
-          <Navigation size={13} /> Go
+          <Navigation size={14} /> Go
         </a>
       </div>
     </div>
@@ -135,7 +126,21 @@ export default function HomePage() {
   const [showFilters, setShowFilters] = useState(false);
   const [onlyFits, setOnlyFits] = useState(false);
   const [filters, setFilters] = useState({ connector_type: null, min_reliability: null, min_power_kw: null, radius_km: 25 });
+
+  // Sheet state (mobile only). dragBase lives in state, not a ref, because the
+  // rendered height depends on it — refs must not be read during render.
+  const [snap, setSnap] = useState('half');
+  const [dragBase, setDragBase] = useState(null);
+  const [dragY, setDragY] = useState(0);
+  const [vh, setVh] = useState(typeof window === 'undefined' ? 800 : window.innerHeight);
+  const startYRef = useRef(0);
   const abortRef = useRef(null);
+
+  useEffect(() => {
+    const onResize = () => setVh(window.innerHeight);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   useEffect(() => {
     listMyVehicles()
@@ -191,25 +196,66 @@ export default function HomePage() {
     () => vehicles.find((v) => v.id === vehicleId) || vehicles[0],
     [vehicles, vehicleId],
   );
-  const compatibleCount = useMemo(() => chargers.filter((c) => c.compatible).length, [chargers]);
   const visible = useMemo(
     () => (onlyFits ? chargers.filter((c) => c.compatible !== false) : chargers),
     [chargers, onlyFits],
   );
-  const setConnectorFilterReset = () =>
-    { setFilters({ connector_type: null, min_reliability: null, min_power_kw: null, radius_km: 25 }); setOnlyFits(false); };
-  const reliableCount = useMemo(() => chargers.filter((c) => c.reliability_score >= 0.8).length, [chargers]);
+  const workingCount = useMemo(() => chargers.filter((c) => c.reliability_score >= 0.7).length, [chargers]);
 
+  // Selecting a pin collapses the sheet so you can see where it is; selecting a
+  // row on desktop scrolls the list to it. One selection, two views.
+  const selectCharger = useCallback((id) => {
+    setSelectedId(id);
+    setSnap('peek');
+    requestAnimationFrame(() => {
+      document.getElementById(`charger-row-${id}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }, []);
+
+  const resetFilters = () => {
+    setFilters({ connector_type: null, min_reliability: null, min_power_kw: null, radius_km: 25 });
+    setOnlyFits(false);
+  };
+
+  // ── Sheet drag ────────────────────────────────────────────────────────────
+  const dragging = dragBase != null;
+
+  const onPointerDown = (e) => {
+    startYRef.current = e.clientY;
+    setDragBase(sheetHeight(snap, vh));
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+  const onPointerMove = (e) => {
+    if (!dragging) return;
+    setDragY(startYRef.current - e.clientY);
+  };
+  const onPointerUp = () => {
+    if (!dragging) return;
+    const target = dragBase + dragY;
+    const options = [['peek', SNAPS.peek], ['half', vh * SNAPS.half], ['full', vh * SNAPS.full]];
+    const nearest = options.reduce((a, b) => (Math.abs(b[1] - target) < Math.abs(a[1] - target) ? b : a));
+    setSnap(nearest[0]);
+    setDragBase(null);
+    setDragY(0);
+  };
+
+  const currentHeight = Math.max(
+    SNAPS.peek,
+    Math.min(vh * SNAPS.full, dragging ? dragBase + dragY : sheetHeight(snap, vh)),
+  );
+
+  // ── Pieces reused by both layouts ─────────────────────────────────────────
   const vehiclePill = defaultVehicle ? (
     <button
       onClick={() => navigate('/garage')}
-      className="tap glass flex items-center gap-2 px-3 rounded-2xl shrink-0"
+      className="tap glass flex items-center gap-2 px-3 rounded-xl shrink-0"
       style={{ height: 42 }}
     >
-      <Car size={15} style={{ color: 'var(--color-brand)' }} />
-      <span className="text-xs font-semibold truncate max-w-[105px]">{defaultVehicle.model}</span>
+      <Car size={15} style={{ color: 'var(--color-text-secondary)' }} />
+      <span className="text-[13px] font-semibold truncate max-w-[100px]">{defaultVehicle.model}</span>
       <span
-        className="flex items-center gap-1 text-xs font-bold tabular-nums"
+        className="flex items-center gap-1 text-[13px] font-bold tabular-nums"
         style={{ color: defaultVehicle.battery_soc < 20 ? 'var(--color-rose)' : 'var(--color-emerald)' }}
       >
         <BatteryMedium size={14} /> {Math.round(defaultVehicle.battery_soc)}%
@@ -218,24 +264,24 @@ export default function HomePage() {
   ) : (
     <button
       onClick={() => navigate('/add-vehicle')}
-      className="tap amp-gradient-bg flex items-center gap-1.5 px-3 rounded-2xl text-xs font-bold text-white shrink-0"
-      style={{ height: 42, boxShadow: 'var(--shadow-brand)' }}
+      className="tap flex items-center gap-1.5 px-3 rounded-xl text-[13px] font-bold shrink-0"
+      style={{ height: 42, background: 'var(--color-brand)', color: 'var(--color-on-brand)', boxShadow: 'var(--shadow-brand)' }}
     >
       <Car size={14} /> Add your EV
     </button>
   );
 
-  // The two questions every driver actually has — "will it work?" and "does it
-  // fit?" — as visible one-tap toggles. Everything rarer stays behind the icon.
   const chipStyle = (on) => (on
-    ? { background: 'var(--color-brand)', color: '#141b04' }
+    ? { background: 'var(--color-brand)', color: 'var(--color-on-brand)', border: '1px solid var(--color-brand)' }
     : { background: 'var(--color-surface)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' });
 
+  // The two questions every driver has — "will it work?" and "does it fit?" —
+  // stay visible. Everything rarer lives behind the sliders icon.
   const quickFilters = (
     <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar">
       <button
         onClick={() => setFilters((f) => ({ ...f, min_reliability: f.min_reliability ? null : 0.7 }))}
-        className="tap shrink-0 text-[11px] font-bold px-3 py-2 rounded-xl"
+        className="tap shrink-0 text-[12.5px] font-semibold px-3 py-2 rounded-full"
         style={chipStyle(!!filters.min_reliability)}
       >
         Working now
@@ -244,14 +290,14 @@ export default function HomePage() {
         disabled={!defaultVehicle}
         onClick={() => setOnlyFits((v) => !v)}
         title={defaultVehicle ? '' : 'Add your car first'}
-        className="tap shrink-0 text-[11px] font-bold px-3 py-2 rounded-xl disabled:opacity-40"
+        className="tap shrink-0 text-[12.5px] font-semibold px-3 py-2 rounded-full disabled:opacity-40"
         style={chipStyle(onlyFits)}
       >
         Fits my car
       </button>
       <button
         onClick={() => setFilters((f) => ({ ...f, min_power_kw: f.min_power_kw ? null : 50 }))}
-        className="tap shrink-0 text-[11px] font-bold px-3 py-2 rounded-xl"
+        className="tap shrink-0 text-[12.5px] font-semibold px-3 py-2 rounded-full"
         style={chipStyle(!!filters.min_power_kw)}
       >
         Fast charging
@@ -259,266 +305,221 @@ export default function HomePage() {
       <button
         onClick={() => setShowFilters((v) => !v)}
         aria-label="More filters"
-        className="tap shrink-0 p-2 rounded-xl"
-        style={chipStyle(showFilters)}
+        className="tap shrink-0 rounded-full flex items-center justify-center"
+        style={{ ...chipStyle(showFilters), width: 34, height: 34 }}
       >
         <SlidersHorizontal size={14} />
       </button>
     </div>
   );
 
-  const heroLine = loading
-    ? 'Scanning the grid…'
-    : reliableCount > 0
-      ? `${reliableCount} reliable charger${reliableCount === 1 ? '' : 's'} around you`
-      : `${chargers.length} charger${chargers.length === 1 ? '' : 's'} within ${filters.radius_km} km`;
-
   const filtersPanel = showFilters && (
-    <div className="p-3.5 rounded-3xl space-y-3 screen-fade"
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+    <div className="p-3.5 space-y-3 screen-fade"
+      style={{ background: 'var(--color-surface-alt)', borderRadius: 'var(--radius-lg)' }}>
       <div>
-        <div className="text-[11px] font-semibold uppercase tracking-wide mb-1.5" style={{ color: 'var(--color-text-tertiary)' }}>Connector</div>
+        <div className="text-[13px] font-semibold mb-2">Connector</div>
         <div className="flex flex-wrap gap-1.5">
           {CONNECTORS.map((c) => (
             <button key={c}
               onClick={() => setFilters((f) => ({ ...f, connector_type: f.connector_type === c ? null : c }))}
-              className={`tap text-[11px] font-semibold px-2.5 py-1.5 rounded-lg ${filters.connector_type === c ? 'amp-gradient-bg text-white' : ''}`}
-              style={filters.connector_type === c ? {} : { background: 'var(--color-surface-alt)', color: 'var(--color-text-secondary)' }}
+              className="tap text-[12.5px] font-semibold px-2.5 py-1.5 rounded-full"
+              style={filters.connector_type === c
+                ? { background: 'var(--color-brand)', color: 'var(--color-on-brand)' }
+                : { background: 'var(--color-surface)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' }}
             >{connectorLabel(c)}</button>
           ))}
         </div>
       </div>
-      <div className="flex items-center gap-4">
-        <label className="flex items-center gap-2 text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
-          <input
-            type="checkbox"
-            checked={filters.min_reliability != null}
-            onChange={(e) => setFilters((f) => ({ ...f, min_reliability: e.target.checked ? 0.8 : null }))}
-          />
-          <ShieldCheck size={14} style={{ color: 'var(--color-emerald)' }} /> Reliable only (80%+)
-        </label>
-        <div className="flex items-center gap-2 flex-1">
-          <span className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>Radius</span>
-          <input type="range" min={5} max={100} step={5} value={filters.radius_km}
-            onChange={(e) => setFilters((f) => ({ ...f, radius_km: Number(e.target.value) }))}
-            className="flex-1" />
-          <span className="text-xs font-semibold w-12">{filters.radius_km} km</span>
-        </div>
+      <div className="flex items-center gap-3">
+        <span className="text-[13px] shrink-0" style={{ color: 'var(--color-text-secondary)' }}>Search radius</span>
+        <input type="range" min={5} max={100} step={5} value={filters.radius_km}
+          onChange={(e) => setFilters((f) => ({ ...f, radius_km: Number(e.target.value) }))}
+          className="flex-1" />
+        <span className="text-[13px] font-semibold w-12 tabular-nums text-right">{filters.radius_km} km</span>
+      </div>
+      <button onClick={resetFilters} className="tap text-[13px] font-semibold" style={{ color: 'var(--color-brand)' }}>
+        Reset filters
+      </button>
+    </div>
+  );
+
+  const emptyState = !loading && !error && chargers.length === 0 && (
+    <div className="p-7 text-center" style={{ background: 'var(--color-surface)', border: '1px dashed var(--color-border-dark)', borderRadius: 'var(--radius-lg)' }}>
+      <div className="mx-auto w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: 'var(--color-surface-alt)' }}>
+        <MapPin size={18} style={{ color: 'var(--color-text-tertiary)' }} />
+      </div>
+      <div className="font-display text-[16px] font-bold mt-3" style={{ letterSpacing: '-0.02em' }}>
+        Nothing charging here
+      </div>
+      <div className="text-[13px] mt-1 max-w-xs mx-auto" style={{ color: 'var(--color-text-secondary)' }}>
+        No chargers within {filters.radius_km} km. Search a different area, or look further out.
+      </div>
+      <div className="flex items-center justify-center gap-2 mt-4">
+        <button onClick={resetFilters} className="tap text-[13px] font-bold px-4 py-2.5 rounded-xl"
+          style={{ background: 'var(--color-brand)', color: 'var(--color-on-brand)' }}>
+          Clear filters
+        </button>
+        <button
+          onClick={() => setFilters((f) => ({ ...f, radius_km: Math.min(100, f.radius_km + 25) }))}
+          className="tap text-[13px] font-bold px-4 py-2.5 rounded-xl"
+          style={{ background: 'var(--color-surface-alt)', color: 'var(--color-text-primary)' }}
+        >
+          Search wider
+        </button>
       </div>
     </div>
   );
 
-  const listBody = (
+  const list = (
     <>
-      {quickFilters}
-
       {error && (
-        <div className="p-4 rounded-3xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
+        <div className="p-4 text-[13.5px]" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)', borderRadius: 'var(--radius-lg)' }}>
           {error}
         </div>
       )}
-      {!loading && !error && chargers.length === 0 && (
-        <div className="p-7 text-center rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px dashed var(--color-border-dark)' }}>
-          <div className="mx-auto w-11 h-11 rounded-full flex items-center justify-center" style={{ background: 'var(--color-surface-alt)' }}>
-            <SlidersHorizontal size={18} style={{ color: 'var(--color-text-tertiary)' }} />
-          </div>
-          <div className="text-sm font-semibold mt-3">No chargers in this area</div>
-          <div className="text-xs mt-1 max-w-xs mx-auto" style={{ color: 'var(--color-text-tertiary)' }}>
-            Try searching a different area above, widening the radius, or clearing your filters.
-          </div>
-          <div className="flex items-center justify-center gap-2 mt-4">
-            <button
-              onClick={() => { setConnectorFilterReset(); }}
-              className="tap text-xs font-bold px-4 py-2.5 rounded-xl"
-              style={{ background: 'var(--color-brand-light)', color: 'var(--color-brand)' }}
-            >
-              Clear filters
-            </button>
-            <button
-              onClick={() => setFilters((f) => ({ ...f, radius_km: Math.min(100, f.radius_km + 25) }))}
-              className="tap text-xs font-bold px-4 py-2.5 rounded-xl"
-              style={{ background: 'var(--color-surface-alt)', color: 'var(--color-text-secondary)' }}
-            >
-              Search wider
-            </button>
-          </div>
-        </div>
-      )}
+      {emptyState}
       {loading && chargers.length === 0 ? (
-        <div className="space-y-2.5">
-          {[0, 1, 2, 3].map((i) => <ChargerCardSkeleton key={i} />)}
-        </div>
+        <div className="space-y-2.5">{[0, 1, 2, 3].map((i) => <ChargerCardSkeleton key={i} />)}</div>
       ) : (
-        <div className="space-y-2.5 animate-stagger" style={{ opacity: loading ? 0.55 : 1, transition: 'opacity 0.2s' }}>
+        <div className="space-y-2.5" style={{ opacity: loading ? 0.55 : 1, transition: 'opacity 0.2s' }}>
           {visible.map((c) => (
-            <ChargerCard key={c.id} charger={c} onClick={() => navigate(`/charger/${c.id}`)} />
+            <ChargerCard
+              key={c.id}
+              charger={c}
+              selected={c.id === selectedId}
+              onSelect={() => { setSelectedId(c.id); setCenter([c.lat, c.lng]); }}
+              onOpen={() => navigate(`/charger/${c.id}`)}
+            />
           ))}
         </div>
       )}
     </>
   );
 
-  return (
-    <div className="h-full flex flex-col lg:flex-row">
-      {/* ── Desktop panel ── */}
-      <div className="hidden lg:flex flex-col w-[420px] shrink-0 overflow-y-auto hide-scrollbar"
-        style={{ borderRight: '1px solid var(--color-border)' }}>
-        <div className="p-5 pb-8 flex flex-col gap-3">
-          <div className="rounded-3xl p-5" style={{ background: 'var(--amp-gradient-soft)' }}>
-            <div className="text-xs font-semibold flex items-center gap-1.5" style={{ color: 'var(--color-brand)' }}>
-              <Sparkles size={13} /> {greeting()}
-            </div>
-            <h1 className="font-display text-[26px] font-bold leading-tight mt-1.5">
-              {loading ? <span>Scanning the grid…</span> : (
-                <>
-                  <span className="amp-gradient-text">{reliableCount} reliable</span> chargers around you
-                </>
-              )}
-            </h1>
-            <p className="text-xs mt-1.5" style={{ color: 'var(--color-text-secondary)' }}>
-              Verified by the community, matched to your EV.
-            </p>
-          </div>
+  const countLine = loading
+    ? 'Looking around you…'
+    : chargers.length === 0
+      ? `Nothing within ${filters.radius_km} km`
+      : `${chargers.length} nearby · ${workingCount} usually working`;
 
+  const mapEl = (
+    <MapView
+      center={center}
+      zoom={12}
+      chargers={chargers}
+      selectedId={selectedId}
+      onSelect={(c) => selectCharger(c.id)}
+      userLocation={userLoc}
+      popup={false}
+    />
+  );
+
+  return (
+    <div className="h-full flex flex-col lg:flex-row relative">
+      {/* ═══ Desktop: list rail + map, selection synced both ways ═══ */}
+      <div className="hidden lg:flex flex-col w-[430px] shrink-0"
+        style={{ borderRight: '1px solid var(--color-border)', background: 'var(--color-bg)' }}>
+        <div className="p-5 pb-3 space-y-3 shrink-0">
+          <div>
+            <h1 className="font-display text-[24px] font-bold leading-tight" style={{ letterSpacing: '-0.03em' }}>
+              Chargers near you
+            </h1>
+            <p className="text-[13.5px] mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{countLine}</p>
+          </div>
           <div className="flex items-center gap-2">
-            <LocationSearch
-              placeholder="Search an area — Indiranagar, Mysuru…"
-              compact
-              onSelect={(r) => setCenter([r.lat, r.lng])}
-            />
+            <LocationSearch placeholder="Search an area — Indiranagar, Mysuru…" compact onSelect={(r) => setCenter([r.lat, r.lng])} />
             {vehiclePill}
           </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold px-2.5 py-1.5 rounded-full"
-              style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }}>
-              {loading ? 'Searching…' : `${chargers.length} chargers · ${filters.radius_km} km`}
-            </span>
-            <div className="flex items-center gap-2">
-              {!loading && vehicleId && chargers.length > 0 && (
-                <span className="text-xs font-semibold px-2.5 py-1.5 rounded-full flex items-center gap-1"
-                  style={{ background: 'var(--color-emerald-light)', color: 'var(--color-emerald)' }}>
-                  <Zap size={11} /> {compatibleCount} fit your EV
-                </span>
-              )}
-              <button
-                onClick={() => setShowFilters((s) => !s)}
-                className="tap flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl"
-                style={{
-                  background: showFilters ? 'var(--color-brand-light)' : 'var(--color-surface)',
-                  color: showFilters ? 'var(--color-brand)' : 'var(--color-text-secondary)',
-                  border: '1px solid var(--color-border)',
-                }}
-              >
-                <SlidersHorizontal size={14} />
-              </button>
-            </div>
-          </div>
-
+          {quickFilters}
           {filtersPanel}
-          {listBody}
         </div>
+        <div className="flex-1 overflow-y-auto hide-scrollbar px-5 pb-8 space-y-2.5">{list}</div>
       </div>
 
-      {/* ── Map ── */}
-      <div className="relative h-[46vh] lg:h-auto lg:flex-1 shrink-0">
-        <MapView
-          center={center}
-          zoom={12}
-          chargers={chargers}
-          selectedId={selectedId}
-          onSelect={(c) => setSelectedId(c.id)}
-          userLocation={userLoc}
-        />
+      {/* ═══ Map — the persistent canvas ═══ */}
+      <div className="relative flex-1 min-h-0">
+        {mapEl}
 
-        {/* Mobile floating header */}
-        <div className="lg:hidden absolute top-3 left-3 right-3 space-y-2" style={{ zIndex: 700 }}>
-          <div className="flex items-center gap-2">
-            <div className="shrink-0" style={{ boxShadow: 'var(--shadow-brand)', borderRadius: 14 }}>
-              <AmpMark size={42} />
-            </div>
-            <LocationSearch
-              placeholder="Search an area…"
-              compact
-              onSelect={(r) => setCenter([r.lat, r.lng])}
-            />
-            {vehiclePill}
-          </div>
+        {/* Floating controls, mobile */}
+        {/* Above the sheet (z 800) so the search dropdown is not clipped by it. */}
+        <div className="lg:hidden absolute top-3 left-3 right-3 flex items-center gap-2" style={{ zIndex: 900 }}>
+          <LocationSearch placeholder="Search an area…" compact onSelect={(r) => setCenter([r.lat, r.lng])} />
+          {vehiclePill}
         </div>
 
         <button
           onClick={() => userLoc && setCenter([...userLoc])}
-          className="tap glass absolute bottom-4 right-4 p-3 rounded-2xl"
-          style={{ zIndex: 500, color: 'var(--color-brand)' }}
-          aria-label="My location"
+          className="tap glass absolute right-4 p-3 rounded-xl lg:bottom-6"
+          style={{ zIndex: 500, color: 'var(--color-brand)', bottom: `calc(${SNAPS.peek}px + 16px)` }}
+          aria-label="Recentre on my location"
         >
           <LocateFixed size={19} />
         </button>
-
-        {/* Selected charger floating card */}
-        {selected && (
-          <div className="absolute left-4 right-4 bottom-4 lg:left-auto lg:right-16 lg:w-[380px] sheet-in" style={{ zIndex: 600 }}>
-            <div className="glass p-4 rounded-3xl">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-3 min-w-0">
-                  <RelRing score={selected.reliability_score} size={40} />
-                  <div className="min-w-0">
-                    <div className="font-display font-semibold text-sm truncate">{selected.name}</div>
-                    <div className="text-xs mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
-                      {relLabel(selected.reliability_score)} · {selected.distance_km} km
-                    </div>
-                  </div>
-                </div>
-                <button onClick={() => setSelectedId(null)} className="tap p-1" style={{ color: 'var(--color-text-tertiary)' }}>
-                  <X size={16} />
-                </button>
-              </div>
-              <div className="flex gap-2 mt-3">
-                <button
-                  onClick={() => navigate(`/charger/${selected.id}`)}
-                  className="tap amp-gradient-bg flex-1 py-2.5 rounded-xl text-xs font-bold text-white"
-                >
-                  View details
-                </button>
-                <a
-                  href={`https://www.google.com/maps/dir/?api=1&destination=${selected.lat},${selected.lng}`}
-                  target="_blank" rel="noreferrer"
-                  className="tap flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold"
-                  style={{ background: 'var(--color-brand-light)', color: 'var(--color-brand)' }}
-                >
-                  <Navigation size={13} /> Go
-                </a>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* ── Mobile list ── */}
-      <div className="lg:hidden flex-1 overflow-y-auto hide-scrollbar">
-        <div className="flex flex-col gap-2.5 p-4 pb-24">
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="text-[11px] font-semibold flex items-center gap-1" style={{ color: 'var(--color-brand)' }}>
-                <Sparkles size={12} /> {greeting()}
-              </div>
-              <h1 className="font-display text-lg font-bold leading-tight mt-0.5">{heroLine}</h1>
+      {/* ═══ Mobile results sheet — drag or tap the handle ═══ */}
+      <div
+        className="lg:hidden absolute left-0 right-0 bottom-0 flex flex-col"
+        style={{
+          height: currentHeight,
+          zIndex: 800,
+          background: 'var(--color-surface)',
+          borderTopLeftRadius: 22, borderTopRightRadius: 22,
+          boxShadow: '0 -8px 32px -8px rgba(14,16,19,0.18)',
+          transition: dragging ? 'none' : 'height 0.28s cubic-bezier(0.22,0.9,0.3,1)',
+        }}
+      >
+        <div
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onClick={() => !dragY && setSnap(snap === 'full' ? 'peek' : snap === 'half' ? 'full' : 'half')}
+          className="shrink-0 pt-2.5 pb-1.5 cursor-grab active:cursor-grabbing"
+          style={{ touchAction: 'none' }}
+        >
+          <div style={{ width: 40, height: 4, borderRadius: 2, background: 'var(--color-surface-2)', margin: '0 auto' }} />
+        </div>
+
+        {selected ? (
+          /* One charger selected — the sheet becomes that charger. */
+          <div className="px-4 pb-4 overflow-y-auto hide-scrollbar">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[13px] font-semibold" style={{ color: 'var(--color-text-tertiary)' }}>Selected</span>
+              <button onClick={() => { setSelectedId(null); setSnap('half'); }} className="tap p-1" style={{ color: 'var(--color-text-tertiary)' }}>
+                <X size={16} />
+              </button>
             </div>
+            <ChargerCard
+              charger={selected}
+              selected
+              onSelect={() => navigate(`/charger/${selected.id}`)}
+              onOpen={() => navigate(`/charger/${selected.id}`)}
+            />
             <button
-              onClick={() => setShowFilters((s) => !s)}
-              className="tap flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl shrink-0"
-              style={{
-                background: showFilters ? 'var(--color-brand-light)' : 'var(--color-surface)',
-                color: showFilters ? 'var(--color-brand)' : 'var(--color-text-secondary)',
-                border: '1px solid var(--color-border)',
-              }}
+              onClick={() => navigate(`/trip-planner?to=${encodeURIComponent(selected.name)}&lat=${selected.lat}&lng=${selected.lng}`)}
+              className="tap w-full mt-2.5 py-3 rounded-xl text-[13.5px] font-semibold flex items-center justify-center gap-2"
+              style={{ background: 'var(--color-surface-alt)', color: 'var(--color-text-primary)' }}
             >
-              <SlidersHorizontal size={14} /> Filters
+              <RouteIcon size={15} /> Plan a trip here
             </button>
           </div>
-          {filtersPanel}
-          {listBody}
-        </div>
+        ) : (
+          <>
+            <div className="px-4 pb-2.5 shrink-0 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[13.5px] font-semibold" style={{ color: 'var(--color-text-secondary)' }}>{countLine}</span>
+                {snap === 'peek' && (
+                  <button onClick={() => setSnap('half')} className="tap flex items-center gap-1 text-[13px] font-bold" style={{ color: 'var(--color-brand)' }}>
+                    See list <ChevronUp size={14} />
+                  </button>
+                )}
+              </div>
+              {quickFilters}
+              {filtersPanel}
+            </div>
+            <div className="flex-1 overflow-y-auto hide-scrollbar px-4 pb-6 space-y-2.5">{list}</div>
+          </>
+        )}
       </div>
     </div>
   );

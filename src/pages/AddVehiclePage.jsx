@@ -9,7 +9,7 @@ const ALL_CONNECTORS = Object.keys(CONNECTOR_LABELS);
 function Field({ label, suffix, ...props }) {
   return (
     <div>
-      <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-tertiary)' }}>
+      <label className="text-[12.5px] font-semibold" style={{ color: 'var(--color-text-tertiary)' }}>
         {label}
       </label>
       <div className="mt-1 flex items-center rounded-xl overflow-hidden"
@@ -58,20 +58,20 @@ function ManualForm({ category, soc, setSoc, onSubmit, busy }) {
         )}
       </div>
       <div>
-        <label className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-tertiary)' }}>
+        <label className="text-[12.5px] font-semibold" style={{ color: 'var(--color-text-tertiary)' }}>
           Charging ports
         </label>
         <div className="flex flex-wrap gap-1.5 mt-1.5">
           {ALL_CONNECTORS.map((c) => (
             <button key={c} onClick={() => toggleConnector(c)}
-              className={`tap text-[11px] font-semibold px-2.5 py-1.5 rounded-lg ${form.connectors.includes(c) ? 'amp-gradient-bg text-white' : ''}`}
+              className={`tap text-[12.5px] font-semibold px-2.5 py-1.5 rounded-lg ${form.connectors.includes(c) ? 'amp-gradient-bg text-white' : ''}`}
               style={form.connectors.includes(c) ? {} : { background: 'var(--color-surface-alt)', color: 'var(--color-text-secondary)' }}>
               {connectorLabel(c)}
             </button>
           ))}
         </div>
       </div>
-      <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+      <div className="p-4 rounded-xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold">Current battery level</span>
           <span className="text-sm font-bold tabular-nums" style={{ color: 'var(--color-brand)' }}>{soc}%</span>
@@ -87,7 +87,7 @@ function ManualForm({ category, soc, setSoc, onSubmit, busy }) {
           battery_soc: soc, is_default: true,
         })}
         disabled={!valid || busy}
-        className="tap w-full py-3.5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
+        className="tap w-full py-3.5 rounded-xl text-sm font-bold text-white disabled:opacity-40"
         style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
       >
         {busy ? 'Adding…' : 'Add my EV'}
@@ -133,7 +133,7 @@ export default function AddVehiclePage() {
 
       {/* Category + mode toggles */}
       <div className="mt-5 flex flex-wrap items-center gap-2">
-        <div className="flex gap-1 p-1 rounded-2xl" style={{ background: 'var(--color-surface-2)' }}>
+        <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'var(--color-surface-2)' }}>
           {[{ id: '4W', icon: CarIcon, label: 'Car' }, { id: '2W', icon: Bike, label: 'Scooter / Bike' }].map(({ id, icon: Icon, label }) => (
             <button key={id} onClick={() => { setCategory(id); setSelected(null); }}
               className="tap flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold"
@@ -146,7 +146,7 @@ export default function AddVehiclePage() {
             </button>
           ))}
         </div>
-        <div className="flex gap-1 p-1 rounded-2xl" style={{ background: 'var(--color-surface-2)' }}>
+        <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'var(--color-surface-2)' }}>
           {[{ id: 'catalog', icon: LibraryBig, label: 'From catalog' }, { id: 'manual', icon: PencilRuler, label: 'Enter manually' }].map(({ id, icon: Icon, label }) => (
             <button key={id} onClick={() => { setMode(id); setSelected(null); }}
               className="tap flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold"
@@ -172,7 +172,7 @@ export default function AddVehiclePage() {
               const isSel = selected?.id === e.id;
               return (
                 <button key={e.id} onClick={() => setSelected(e)}
-                  className="tap card-lift text-left p-4 rounded-2xl relative"
+                  className="tap card-lift text-left p-4 rounded-xl relative"
                   style={{
                     background: 'var(--color-surface)',
                     border: `1.5px solid ${isSel ? 'var(--color-brand)' : 'var(--color-border)'}`,
@@ -200,14 +200,14 @@ export default function AddVehiclePage() {
           </button>
 
           {selected && (
-            <div className="mt-5 p-4 rounded-2xl sheet-in" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+            <div className="mt-5 p-4 rounded-xl sheet-in" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold">Current battery level</span>
                 <span className="text-sm font-bold tabular-nums" style={{ color: 'var(--color-brand)' }}>{soc}%</span>
               </div>
               <input type="range" min={5} max={100} value={soc} onChange={(e) => setSoc(Number(e.target.value))} className="w-full mt-2" />
               <button onClick={() => submit({ catalog_id: selected.id, battery_soc: soc, is_default: true })} disabled={busy}
-                className="tap mt-4 w-full py-3.5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
+                className="tap mt-4 w-full py-3.5 rounded-xl text-sm font-bold text-white disabled:opacity-40"
                 style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}>
                 {busy ? 'Adding…' : `Add ${selected.make} ${selected.model}`}
               </button>

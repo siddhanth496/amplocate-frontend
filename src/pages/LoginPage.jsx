@@ -60,15 +60,15 @@ export default function LoginPage() {
       {/* Left brand panel (desktop) */}
       <div
         className="hidden lg:flex flex-col justify-between w-[44%] p-12"
-        style={{ background: 'linear-gradient(150deg, #0b0f04 0%, #1f3007 45%, #4d7c0f 100%)' }}
+        style={{ background: 'linear-gradient(150deg, #0a1f7a 0%, #1b4cf0 52%, #4f7bff 100%)' }}
       >
         <div className="flex items-center gap-2.5">
-          <svg width={36} height={36} viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#a3e635" /><path d="M35 10 L18 37 h11 l-4 17 L44 26 h-11 z" fill="#10150a" /></svg>
-          <span className="text-xl font-bold text-white tracking-tight">Amplocate</span>
+          <svg width={36} height={36} viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="rgba(255,255,255,0.16)" /><path d="M35 10 L18 37 h11 l-4 17 L44 26 h-11 z" fill="#ffffff" /></svg>
+          <span className="font-display text-xl font-bold text-white tracking-tight">Amplocate</span>
         </div>
         <div>
-          <h1 className="font-display text-4xl font-bold text-white leading-tight max-w-md">
-            Charge with confidence, everywhere.
+          <h1 className="font-display text-[40px] font-bold text-white leading-[1.08] max-w-md" style={{ letterSpacing: '-0.035em' }}>
+            Know it works before you drive there.
           </h1>
           <div className="mt-10 space-y-6">
             {FEATURES.map(({ icon: Icon, title, desc }) => (
@@ -100,11 +100,11 @@ export default function LoginPage() {
               <p className="mt-1.5 text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 Log in or sign up with your mobile number.
               </p>
-              <label className="block mt-8 text-xs font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-tertiary)' }}>
+              <label className="block mt-8 text-xs font-semibold" style={{ color: 'var(--color-text-tertiary)' }}>
                 Mobile number
               </label>
               <div
-                className="mt-2 flex items-center rounded-2xl overflow-hidden"
+                className="mt-2 flex items-center rounded-xl overflow-hidden"
                 style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-dark)' }}
               >
                 <span className="pl-4 pr-2 text-sm font-semibold" style={{ color: 'var(--color-text-secondary)' }}>+91</span>
@@ -122,7 +122,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={busy || phone.length !== 10}
-                className="tap mt-6 w-full py-3.5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
+                className="tap mt-6 w-full py-3.5 rounded-xl text-sm font-bold text-white disabled:opacity-40"
                 style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
               >
                 {busy ? 'Sending…' : 'Send OTP'}
@@ -160,14 +160,14 @@ export default function LoginPage() {
                 placeholder="••••••"
                 value={otp}
                 onChange={(e) => setOtp(digitsOnly(e.target.value).slice(0, 6))}
-                className="mt-6 w-full py-4 rounded-2xl text-center text-2xl font-bold tracking-[0.5em] outline-none"
+                className="mt-6 w-full py-4 rounded-xl text-center text-2xl font-bold tracking-[0.5em] outline-none"
                 style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-dark)' }}
               />
               {error && <p className="mt-3 text-sm" style={{ color: 'var(--color-rose)' }}>{error}</p>}
               <button
                 type="submit"
                 disabled={busy || otp.length !== 6}
-                className="tap mt-6 w-full py-3.5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
+                className="tap mt-6 w-full py-3.5 rounded-xl text-sm font-bold text-white disabled:opacity-40"
                 style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
               >
                 {busy ? 'Verifying…' : 'Verify & Continue'}

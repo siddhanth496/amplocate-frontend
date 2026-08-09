@@ -13,13 +13,13 @@ const AC_FALLBACK_KW = 7.4;
 
 function StatCard({ icon: Icon, value, label, tint }) {
   return (
-    <div className="card-lift p-4 rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+    <div className="card-lift p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
       <div className="w-9 h-9 rounded-xl flex items-center justify-center"
         style={{ background: tint || 'var(--amp-gradient-soft)', color: 'var(--color-brand)' }}>
         <Icon size={17} />
       </div>
       <div className="font-display text-xl font-bold tabular-nums mt-2.5 leading-none">{value}</div>
-      <div className="text-[11px] font-medium mt-1" style={{ color: 'var(--color-text-tertiary)' }}>{label}</div>
+      <div className="text-[12.5px] font-medium mt-1" style={{ color: 'var(--color-text-tertiary)' }}>{label}</div>
     </div>
   );
 }
@@ -37,19 +37,19 @@ function VehicleHero({ vehicle }) {
   const Icon = vehicle.category === '2W' ? Bike : Car;
 
   return (
-    <div className="p-5 lg:p-6 rounded-3xl text-white relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #0d1104 0%, #24380a 55%, #4d7c0f 130%)', border: '1px solid rgba(163,230,53,0.25)', boxShadow: 'var(--shadow-brand)' }}>
+    <div className="p-5 lg:p-6 rounded-2xl text-white relative overflow-hidden"
+      style={{ background: 'linear-gradient(135deg, #0a1f7a 0%, #1b4cf0 58%, #4f7bff 130%)', border: 'none', boxShadow: 'var(--shadow-brand)' }}>
       {/* faint bolt watermark */}
       <svg viewBox="0 0 64 64" className="absolute -right-4 -bottom-6 opacity-10" width={160} height={160}>
-        <path d="M35 10 L18 37 h11 l-4 17 L44 26 h-11 z" fill="#a3e635" />
+        <path d="M35 10 L18 37 h11 l-4 17 L44 26 h-11 z" fill="#ffffff" />
       </svg>
 
-      <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.7)' }}>
+      <div className="flex items-center gap-2 text-[12.5px] font-bold" style={{ color: 'rgba(255,255,255,0.7)' }}>
         <Icon size={13} /> Your EV
       </div>
       <div className="flex items-end justify-between gap-4 mt-1 flex-wrap">
         <h2 className="font-display text-2xl font-bold">{vehicle.make} {vehicle.model}</h2>
-        <button onClick={() => navigate('/garage')} className="tap text-[11px] font-bold px-2.5 py-1.5 rounded-lg"
+        <button onClick={() => navigate('/garage')} className="tap text-[12.5px] font-bold px-2.5 py-1.5 rounded-lg"
           style={{ background: 'rgba(255,255,255,0.15)' }}>
           Manage
         </button>
@@ -64,7 +64,7 @@ function VehicleHero({ vehicle }) {
         <div className="mt-1.5 h-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.18)' }}>
           <div className="h-full rounded-full" style={{
             width: `${soc}%`,
-            background: soc < 20 ? '#f87171' : 'linear-gradient(90deg, #34d399, #a7f3d0)',
+            background: soc < 20 ? '#ff9ea1' : 'linear-gradient(90deg, #7ef0c0, #d8fff0)',
             transition: 'width 0.8s ease',
           }} />
         </div>
@@ -83,7 +83,7 @@ function VehicleHero({ vehicle }) {
             <div className="flex items-center gap-1.5 text-sm font-bold">
               <I size={13} style={{ color: 'rgba(255,255,255,0.7)' }} /> <span className="truncate">{v}</span>
             </div>
-            <div className="text-[10px] uppercase tracking-wide mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>{l}</div>
+            <div className="text-[12px] mt-0.5" style={{ color: 'rgba(255,255,255,0.55)' }}>{l}</div>
           </div>
         ))}
       </div>
@@ -109,7 +109,7 @@ export default function DashboardPage() {
   );
 
   if (error) {
-    return <div className="max-w-3xl mx-auto p-6"><div className="p-4 rounded-2xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>{error}</div></div>;
+    return <div className="max-w-3xl mx-auto p-6"><div className="p-4 rounded-xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>{error}</div></div>;
   }
   if (!vehicles || !stats) {
     return (
@@ -136,10 +136,10 @@ export default function DashboardPage() {
       </div>
 
       {vehicle ? <VehicleHero vehicle={vehicle} /> : (
-        <div className="p-8 text-center rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px dashed var(--color-border-dark)' }}>
+        <div className="p-8 text-center rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px dashed var(--color-border-dark)' }}>
           <h2 className="font-display font-bold">No EV added yet</h2>
           <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>Add your car or scooter to unlock the dashboard.</p>
-          <button onClick={() => navigate('/add-vehicle')} className="tap mt-4 px-6 py-3 rounded-2xl text-sm font-bold text-white"
+          <button onClick={() => navigate('/add-vehicle')} className="tap mt-4 px-6 py-3 rounded-xl text-sm font-bold text-white"
             style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}>
             Add your EV
           </button>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent sessions */}
-      <div className="rounded-3xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+      <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <div className="px-4 pt-4 pb-2 font-display text-sm font-bold">Recent charging sessions</div>
         {stats.recent_sessions.length === 0 ? (
           <div className="px-4 pb-5 text-sm" style={{ color: 'var(--color-text-tertiary)' }}>

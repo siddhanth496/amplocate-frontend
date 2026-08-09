@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChevronLeft, Navigation, Flag, Zap, IndianRupee, Clock, MapPin,
-  CheckCircle2, XCircle, Car, Users, Coffee,
+  CheckCircle2, XCircle, Car, Users, Coffee, Route,
 } from 'lucide-react';
 import MapView from '../components/MapView';
 import { markChargerViewed } from '../components/GettingStarted';
 import { getCharger } from '../common/api/chargers';
 import { submitReport } from '../common/api/reports';
-import { relColor, relLabel, relPct, timeAgo, connectorLabel } from '../common/utils/reliability';
+import { relColor, relTextColor, relLabel, timeAgo, connectorLabel } from '../common/utils/reliability';
 
 const REPORT_META = {
   working: { icon: CheckCircle2, label: 'Working', color: 'var(--color-emerald)' },
@@ -35,7 +35,7 @@ function ScoreRing({ score }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-2xl font-bold tabular-nums">{pct}%</span>
-        <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-tertiary)' }}>
+        <span className="text-[12px] font-semibold" style={{ color: 'var(--color-text-tertiary)' }}>
           reliable
         </span>
       </div>
@@ -71,7 +71,7 @@ export default function ChargerDetailsPage() {
         <button onClick={() => navigate(-1)} className="tap flex items-center gap-1 text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
           <ChevronLeft size={16} /> Back
         </button>
-        <div className="mt-6 p-4 rounded-2xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>{error}</div>
+        <div className="mt-6 p-4 rounded-xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>{error}</div>
       </div>
     );
   }
@@ -100,18 +100,23 @@ export default function ChargerDetailsPage() {
         {/* Main column */}
         <div className="space-y-5">
           {/* Header card */}
-          <div className="p-5 lg:p-6 rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
+          <div className="p-5 lg:p-6 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div className="min-w-0">
-                <h1 className="font-display text-xl lg:text-2xl font-bold leading-tight">{charger.name}</h1>
+                {/* Verdict first: the question you opened this page to answer. */}
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: relColor(charger.reliability_score) }} />
+                  <span className="text-[15px] font-bold" style={{ color: relTextColor(charger.reliability_score) }}>
+                    {relLabel(charger.reliability_score)}
+                  </span>
+                </div>
+                <h1 className="font-display text-xl lg:text-[28px] font-bold leading-tight mt-1.5" style={{ letterSpacing: '-0.03em' }}>
+                  {charger.name}
+                </h1>
                 <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
                   {charger.operator} · {charger.address || charger.city}
                 </p>
                 <div className="flex items-center gap-2 mt-3 flex-wrap">
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                    style={{ background: 'var(--color-surface-alt)', color: relColor(charger.reliability_score) }}>
-                    {relLabel(charger.reliability_score)}
-                  </span>
                   <span className="text-xs flex items-center gap-1" style={{ color: 'var(--color-text-tertiary)' }}>
                     <Clock size={12} /> verified {timeAgo(charger.last_verified_at)}
                   </span>
@@ -129,15 +134,23 @@ export default function ChargerDetailsPage() {
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${charger.lat},${charger.lng}`}
                 target="_blank" rel="noreferrer"
-                className="tap flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold text-white"
+                className="tap flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold text-white"
                 style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
               >
                 <Navigation size={16} /> Navigate
               </a>
               <button
+                onClick={() => navigate(`/trip-planner?to=${encodeURIComponent(charger.name)}&lat=${charger.lat}&lng=${charger.lng}`)}
+                className="tap flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl text-sm font-semibold"
+                style={{ background: 'var(--color-surface-alt)', color: 'var(--color-text-primary)' }}
+                title="Plan a route that ends here"
+              >
+                <Route size={15} /> Plan trip
+              </button>
+              <button
                 onClick={() => navigate(`/report/${charger.id}`)}
-                className="tap flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl text-sm font-bold"
-                style={{ background: 'var(--color-brand-light)', color: 'var(--color-brand)' }}
+                className="tap flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl text-sm font-semibold"
+                style={{ background: 'var(--color-surface-alt)', color: 'var(--color-text-primary)' }}
               >
                 <Flag size={15} /> Report
               </button>
@@ -145,11 +158,11 @@ export default function ChargerDetailsPage() {
           </div>
 
           {/* Connectors */}
-          <div className="p-5 rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+          <div className="p-5 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
             <h2 className="text-sm font-bold mb-3">Connectors</h2>
             <div className="grid sm:grid-cols-2 gap-2.5">
               {charger.connectors.map((c, i) => (
-                <div key={i} className="flex items-center gap-3 p-3 rounded-2xl" style={{ background: 'var(--color-surface-alt)' }}>
+                <div key={i} className="flex items-center gap-3 p-3 rounded-xl" style={{ background: 'var(--color-surface-alt)' }}>
                   <div className="p-2 rounded-xl" style={{ background: 'var(--color-brand-light)', color: 'var(--color-brand)' }}>
                     <Zap size={17} />
                   </div>
@@ -178,7 +191,7 @@ export default function ChargerDetailsPage() {
           </div>
 
           {/* Quick report */}
-          <div className="p-5 rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+          <div className="p-5 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
             <h2 className="text-sm font-bold">Been here just now?</h2>
             <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
               Your report updates the reliability score for everyone.
@@ -211,7 +224,7 @@ export default function ChargerDetailsPage() {
 
           {/* Recent reports */}
           {charger.recent_reports?.length > 0 && (
-            <div className="p-5 rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+            <div className="p-5 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
               <h2 className="text-sm font-bold mb-3">Recent community reports</h2>
               <div className="space-y-2.5">
                 {charger.recent_reports.map((r) => {
@@ -232,7 +245,7 @@ export default function ChargerDetailsPage() {
         </div>
 
         {/* Map column */}
-        <div className="rounded-3xl overflow-hidden h-[260px] lg:h-auto lg:min-h-[420px]"
+        <div className="rounded-2xl overflow-hidden h-[260px] lg:h-auto lg:min-h-[420px]"
           style={{ border: '1px solid var(--color-border)' }}>
           <MapView center={[charger.lat, charger.lng]} zoom={15} chargers={[charger]} popup={false} />
         </div>

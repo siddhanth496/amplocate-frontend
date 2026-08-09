@@ -66,7 +66,7 @@ export default function ReportPage() {
         <p className="text-sm mt-1" style={{ color: 'var(--color-text-secondary)' }}>
           Pick the station you want to report on.
         </p>
-        <div className="mt-4 flex items-center gap-2 px-4 rounded-2xl"
+        <div className="mt-4 flex items-center gap-2 px-4 rounded-xl"
           style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-dark)' }}>
           <Search size={16} style={{ color: 'var(--color-text-tertiary)' }} />
           <input
@@ -80,7 +80,7 @@ export default function ReportPage() {
         <div className="mt-4 space-y-2 animate-stagger">
           {filtered.map((c) => (
             <button key={c.id} onClick={() => navigate(`/report/${c.id}`)}
-              className="tap w-full text-left p-4 rounded-2xl flex items-center justify-between gap-3"
+              className="tap w-full text-left p-4 rounded-xl flex items-center justify-between gap-3"
               style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
               <div className="min-w-0">
                 <div className="text-sm font-semibold truncate">{c.name}</div>
@@ -109,10 +109,10 @@ export default function ReportPage() {
           <span className="font-semibold"> {charger?.name}</span> is already updated.
         </p>
         <div className="flex gap-2.5 mt-8">
-          <button onClick={() => navigate(`/charger/${chargerId}`)} className="tap flex-1 py-3 rounded-2xl text-sm font-bold text-white" style={{ background: 'var(--color-brand)' }}>
+          <button onClick={() => navigate(`/charger/${chargerId}`)} className="tap flex-1 py-3 rounded-xl text-sm font-bold text-white" style={{ background: 'var(--color-brand)' }}>
             Back to charger
           </button>
-          <button onClick={() => navigate('/')} className="tap flex-1 py-3 rounded-2xl text-sm font-bold" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-dark)' }}>
+          <button onClick={() => navigate('/')} className="tap flex-1 py-3 rounded-xl text-sm font-bold" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-dark)' }}>
             Discover
           </button>
         </div>
@@ -136,7 +136,7 @@ export default function ReportPage() {
       <div className="mt-5 space-y-2.5">
         {TYPES.map(({ type: t, icon: Icon, label, desc, color, bg }) => (
           <button key={t} onClick={() => setType(t)}
-            className="tap w-full flex items-center gap-4 p-4 rounded-2xl text-left"
+            className="tap w-full flex items-center gap-4 p-4 rounded-xl text-left"
             style={{
               background: 'var(--color-surface)',
               border: `1.5px solid ${type === t ? color : 'var(--color-border)'}`,
@@ -158,7 +158,7 @@ export default function ReportPage() {
         onChange={(e) => setComment(e.target.value)}
         placeholder="Add a note (optional) — e.g. “Gun 2 works, gun 1 errored”"
         rows={3}
-        className="mt-4 w-full p-4 rounded-2xl text-sm outline-none resize-none"
+        className="mt-4 w-full p-4 rounded-xl text-sm outline-none resize-none"
         style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-dark)' }}
       />
 
@@ -167,7 +167,7 @@ export default function ReportPage() {
       <button
         onClick={submit}
         disabled={!type || busy}
-        className="tap mt-5 w-full py-3.5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
+        className="tap mt-5 w-full py-3.5 rounded-xl text-sm font-bold text-white disabled:opacity-40"
         style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
       >
         {busy ? 'Submitting…' : 'Submit report'}

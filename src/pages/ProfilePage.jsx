@@ -25,7 +25,7 @@ export default function ProfilePage() {
     <div className="max-w-xl mx-auto p-4 lg:p-8 pb-24 screen-fade">
       <h1 className="font-display text-xl font-bold">Profile</h1>
 
-      <div className="mt-5 p-5 rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+      <div className="mt-5 p-5 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold" style={{ background: 'var(--color-brand-light)', color: 'var(--color-brand)' }}>
             {(name || user?.phone || 'A').slice(-2)}
@@ -36,7 +36,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <label className="block mt-6 text-[11px] font-semibold uppercase tracking-wide" style={{ color: 'var(--color-text-tertiary)' }}>
+        <label className="block mt-6 text-[12.5px] font-semibold" style={{ color: 'var(--color-text-tertiary)' }}>
           Display name
         </label>
         <div className="flex gap-2 mt-1.5">
@@ -44,18 +44,18 @@ export default function ProfilePage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Your name"
-            className="flex-1 px-4 py-3 rounded-2xl text-sm outline-none"
+            className="flex-1 px-4 py-3 rounded-xl text-sm outline-none"
             style={{ background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)' }}
           />
           <button onClick={save} disabled={busy || !name.trim()}
-            className="tap px-5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
+            className="tap px-5 rounded-xl text-sm font-bold text-white disabled:opacity-40"
             style={{ background: saved ? 'var(--color-emerald)' : 'var(--color-brand)' }}>
             {saved ? <Check size={16} /> : 'Save'}
           </button>
         </div>
       </div>
 
-      <div className="mt-4 rounded-3xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+      <div className="mt-4 rounded-2xl overflow-hidden" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
         {[
           { icon: Car, label: 'My garage', desc: 'Manage vehicles and battery levels', to: '/garage' },
           { icon: Route, label: 'Trip planner', desc: 'Plan a risk-free journey', to: '/trip-planner' },
@@ -76,7 +76,7 @@ export default function ProfilePage() {
       </div>
 
       <button onClick={signOut}
-        className="tap mt-4 w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold"
+        className="tap mt-4 w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold"
         style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
         <LogOut size={16} /> Log out
       </button>

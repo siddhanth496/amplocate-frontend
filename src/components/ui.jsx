@@ -1,34 +1,55 @@
-// ─── Score Gauge — half-circle SVG arc ───────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+// Amplocate UI primitives — "Signal" design system.
+//
+// Rules the whole set obeys:
+//   1. Colour is information. Neutral chrome, saturated only for status and
+//      the single primary action on a screen.
+//   2. Labels are sentences, not uppercase mono codes.
+//   3. Elevation is a hairline border first, a shadow second.
+// ═══════════════════════════════════════════════════════════════════════════
+
+import { Zap, X, ChevronRight } from 'lucide-react';
+
+/**
+ * Shared tier lookup so every component agrees on what a score means.
+ * `color` is the vivid value for shapes; `text` is the darkened value that
+ * stays legible as small type on a light surface.
+ */
+function tier(score01) {
+  if (score01 >= 0.85) return { color: 'var(--color-rel-excellent)', text: 'var(--color-rel-excellent-text)', soft: 'var(--color-emerald-light)' };
+  if (score01 >= 0.7)  return { color: 'var(--color-rel-good)',      text: 'var(--color-rel-good-text)',      soft: 'var(--color-emerald-light)' };
+  if (score01 >= 0.5)  return { color: 'var(--color-rel-moderate)',  text: 'var(--color-rel-moderate-text)',  soft: 'var(--color-amber-light)' };
+  return { color: 'var(--color-rel-poor)', text: 'var(--color-rel-poor-text)', soft: 'var(--color-rose-light)' };
+}
+
+// ─── ScoreGauge — half-circle arc, takes 0–100 ────────────────────────────────
 export function ScoreGauge({ score = 96, size = 120, stroke = 10, label = 'reliable', showLabel = true }) {
   const r = (size - stroke) / 2;
   const c = Math.PI * r;
   const dash = c * (score / 100);
-  const color =
-    score >= 85 ? 'var(--color-lime)' :
-    score >= 65 ? 'var(--color-emerald)' :
-    score >= 40 ? 'var(--color-amber)' : 'var(--color-rose)';
+  const { color } = tier(score / 100);
   return (
     <div style={{ position: 'relative', width: size, height: size / 2 + 18 }}>
       <svg width={size} height={size / 2 + 12} viewBox={`0 0 ${size} ${size / 2 + 12}`}>
         <path
-          d={`M ${stroke/2} ${size/2} A ${r} ${r} 0 0 1 ${size-stroke/2} ${size/2}`}
-          stroke="rgba(255,255,255,0.07)" strokeWidth={stroke} fill="none" strokeLinecap="round"
+          d={`M ${stroke / 2} ${size / 2} A ${r} ${r} 0 0 1 ${size - stroke / 2} ${size / 2}`}
+          stroke="var(--color-surface-2)" strokeWidth={stroke} fill="none" strokeLinecap="round"
         />
         <path
-          d={`M ${stroke/2} ${size/2} A ${r} ${r} 0 0 1 ${size-stroke/2} ${size/2}`}
+          d={`M ${stroke / 2} ${size / 2} A ${r} ${r} 0 0 1 ${size - stroke / 2} ${size / 2}`}
           stroke={color} strokeWidth={stroke} fill="none" strokeLinecap="round"
           strokeDasharray={`${dash} ${c}`}
         />
       </svg>
       <div style={{ position: 'absolute', top: size / 2 - 38, left: 0, right: 0, textAlign: 'center' }}>
         <div style={{
-          fontSize: size * 0.32, fontWeight: 600, color, lineHeight: 1,
-          letterSpacing: '-0.02em', fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums',
+          fontSize: size * 0.32, fontWeight: 700, color, lineHeight: 1,
+          letterSpacing: '-0.03em', fontFamily: 'var(--font-display)', fontVariantNumeric: 'tabular-nums',
         }}>
           {score}
         </div>
         {showLabel && (
-          <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', marginTop: 4, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          <div style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 4 }}>
             {label}
           </div>
         )}
@@ -37,84 +58,70 @@ export function ScoreGauge({ score = 96, size = 120, stroke = 10, label = 'relia
   );
 }
 
-// ─── Reliability Badge — pulsing dot + score ──────────────────────────────────
+// ─── ReliabilityBadge — dot + score, 0–100 ───────────────────────────────────
 export function ReliabilityBadge({ score }) {
-  const color =
-    score >= 85 ? 'var(--color-lime)' :
-    score >= 65 ? 'var(--color-emerald)' :
-    score >= 40 ? 'var(--color-amber)' : 'var(--color-rose)';
-  const bg =
-    score >= 85 ? 'rgba(200,255,58,0.12)' :
-    score >= 65 ? 'rgba(127,229,168,0.12)' :
-    score >= 40 ? 'rgba(251,191,36,0.12)' : 'rgba(255,126,107,0.12)';
+  const { color, text, soft } = tier(score / 100);
   return (
     <div style={{
       display: 'inline-flex', alignItems: 'center', gap: 6,
-      padding: '5px 10px', borderRadius: 999,
-      background: bg, border: `1px solid ${color}33`,
+      padding: '4px 9px', borderRadius: 999, background: soft,
     }}>
-      <span className="pulse-dot" style={{ width: 7, height: 7, borderRadius: '50%', background: color, flexShrink: 0 }} />
-      <span style={{ fontSize: 12, fontWeight: 600, color, letterSpacing: '-0.02em', fontFamily: 'var(--font-mono)', fontVariantNumeric: 'tabular-nums' }}>
+      <span style={{ width: 7, height: 7, borderRadius: '50%', background: color, flexShrink: 0 }} />
+      <span style={{ fontSize: 12, fontWeight: 700, color: text, fontVariantNumeric: 'tabular-nums' }}>
         {score}
       </span>
     </div>
   );
 }
 
-// ─── Dots reliability viz ─────────────────────────────────────────────────────
+// ─── DotsRel ─────────────────────────────────────────────────────────────────
 export function DotsRel({ score, max = 8 }) {
   const filled = Math.round((score / 100) * max);
-  const color =
-    score >= 85 ? 'var(--color-lime)' :
-    score >= 65 ? 'var(--color-emerald)' :
-    score >= 40 ? 'var(--color-amber)' : 'var(--color-rose)';
+  const { color } = tier(score / 100);
   return (
     <div style={{ display: 'inline-flex', gap: 3 }}>
       {Array.from({ length: max }).map((_, i) => (
         <span key={i} style={{
           width: 6, height: 6, borderRadius: '50%',
-          background: i < filled ? color : 'rgba(255,255,255,0.08)',
+          background: i < filled ? color : 'var(--color-surface-2)',
         }} />
       ))}
     </div>
   );
 }
 
-// ─── Bar reliability viz ──────────────────────────────────────────────────────
+// ─── BarRel ──────────────────────────────────────────────────────────────────
 export function BarRel({ score }) {
-  const color =
-    score >= 85 ? 'var(--color-lime)' :
-    score >= 65 ? 'var(--color-emerald)' :
-    score >= 40 ? 'var(--color-amber)' : 'var(--color-rose)';
+  const { color } = tier(score / 100);
   return (
-    <div style={{ width: 56, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+    <div style={{ width: 56, height: 4, borderRadius: 2, background: 'var(--color-surface-2)', overflow: 'hidden' }}>
       <div style={{ width: `${score}%`, height: '100%', background: color, borderRadius: 2 }} />
     </div>
   );
 }
 
-// ─── VerifiedBy — avatar pile + label ────────────────────────────────────────
+// ─── VerifiedBy ──────────────────────────────────────────────────────────────
 export function VerifiedBy({ n = 3, when = '8m ago' }) {
-  const colors = ['#c8ff3a', '#7fe5a8', '#fbbf24', '#fb7185'];
+  const swatch = ['#1b4cf0', '#0e9f6e', '#e8a317', '#e5484d'];
   return (
     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
       <div style={{ display: 'flex' }}>
-        {colors.slice(0, Math.min(3, n)).map((c, i) => (
+        {swatch.slice(0, Math.min(3, n)).map((c, i) => (
           <div key={i} style={{
             width: 18, height: 18, borderRadius: '50%',
-            background: c, border: '2px solid var(--color-bg)',
+            background: c, border: '2px solid var(--color-surface)',
             marginLeft: i === 0 ? 0 : -6,
           }} />
         ))}
       </div>
-      <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', letterSpacing: '-0.01em' }}>
-        <span style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>{n} drivers</span> confirmed · {when}
+      <span style={{ fontSize: 12.5, color: 'var(--color-text-secondary)' }}>
+        <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>{n} drivers</span> confirmed · {when}
       </span>
     </div>
   );
 }
 
-// ─── ReliabilityTicker — live activity strip ──────────────────────────────────
+// ─── ReliabilityTicker ───────────────────────────────────────────────────────
 export function ReliabilityTicker() {
   const items = [
     'Phoenix Mall · verified 4m ago',
@@ -125,11 +132,11 @@ export function ReliabilityTicker() {
     'Koramangala Forum · verified 1m ago',
   ];
   return (
-    <div style={{ overflow: 'hidden', height: 24, borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)', background: 'rgba(200,255,58,0.025)' }}>
-      <div className="ticker-track" style={{ height: 24, alignItems: 'center', gap: 28, padding: '0 16px', display: 'inline-flex' }}>
+    <div style={{ overflow: 'hidden', height: 26, borderTop: '1px solid var(--color-border-light)', borderBottom: '1px solid var(--color-border-light)', background: 'var(--color-surface)' }}>
+      <div className="ticker-track" style={{ height: 26, alignItems: 'center', gap: 28, padding: '0 16px', display: 'inline-flex' }}>
         {[...items, ...items].map((t, i) => (
-          <span key={i} style={{ fontSize: 11, color: 'var(--color-text-tertiary)', letterSpacing: '0.02em', display: 'inline-flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)' }}>
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--color-lime)', flexShrink: 0 }} />
+          <span key={i} style={{ fontSize: 11.5, color: 'var(--color-text-tertiary)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--color-rel-excellent)', flexShrink: 0 }} />
             {t}
           </span>
         ))}
@@ -138,34 +145,28 @@ export function ReliabilityTicker() {
   );
 }
 
-// ─── Map Pin — charger marker ─────────────────────────────────────────────────
-import { Zap } from 'lucide-react';
-
+// ─── MapPin — absolute-positioned marker for mock maps ───────────────────────
 export function MapPin({ score, selected, onClick, x, y, label }) {
-  const color =
-    score >= 85 ? 'var(--color-lime)' :
-    score >= 65 ? 'var(--color-emerald)' :
-    score >= 40 ? 'var(--color-amber)' : 'var(--color-rose)';
+  const { color } = tier(score / 100);
   return (
     <div
       onClick={onClick}
       className="tap"
       style={{
         position: 'absolute', left: `${x}%`, top: `${y}%`,
-        transform: `translate(-50%, -100%) ${selected ? 'scale(1.15)' : 'scale(1)'}`,
+        transform: `translate(-50%, -100%) ${selected ? 'scale(1.12)' : 'scale(1)'}`,
         zIndex: selected ? 10 : 2,
       }}
     >
       <div style={{
-        background: selected ? color : 'var(--color-surface-alt)',
-        color: selected ? '#0a0e0c' : color,
+        background: selected ? color : 'var(--color-surface)',
+        color: selected ? '#fff' : color,
         border: `1.5px solid ${color}`,
         padding: '5px 10px 5px 6px',
         borderRadius: 999,
         display: 'inline-flex', alignItems: 'center', gap: 5,
-        fontFamily: 'var(--font-mono)',
-        fontSize: 11, fontWeight: 600,
-        boxShadow: selected ? `0 8px 24px ${color}40` : '0 4px 12px rgba(0,0,0,0.4)',
+        fontSize: 11.5, fontWeight: 700,
+        boxShadow: 'var(--shadow-sm)',
       }}>
         <Zap size={12} />
         {label}
@@ -173,56 +174,63 @@ export function MapPin({ score, selected, onClick, x, y, label }) {
       <div style={{
         width: 0, height: 0, marginLeft: '50%', transform: 'translateX(-50%)',
         borderLeft: '5px solid transparent', borderRight: '5px solid transparent',
-        borderTop: `6px solid ${selected ? color : 'var(--color-surface-alt)'}`,
+        borderTop: `6px solid ${selected ? color : 'var(--color-surface)'}`,
       }} />
     </div>
   );
 }
 
-// ─── PageHeader ───────────────────────────────────────────────────────────────
+// ─── PageHeader ──────────────────────────────────────────────────────────────
 export function PageHeader({ title, subtitle, mono = false }) {
   return (
     <div className="px-5 pt-6 pb-4">
       {mono && (
-        <div style={{ fontSize: 11, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--font-mono)', marginBottom: 4 }}>
+        <div style={{ fontSize: 13, color: 'var(--color-text-tertiary)', marginBottom: 4, fontWeight: 500 }}>
           {mono}
         </div>
       )}
-      <h1 style={{ fontSize: 26, fontWeight: 600, color: 'var(--color-text-primary)', letterSpacing: '-0.025em', lineHeight: 1.12 }}>{title}</h1>
-      {subtitle && <p style={{ fontSize: 14, color: 'var(--color-text-secondary)', marginTop: 8, lineHeight: 1.45 }}>{subtitle}</p>}
+      <h1 className="font-display" style={{ fontSize: 28, fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
+        {title}
+      </h1>
+      {subtitle && <p style={{ fontSize: 14.5, color: 'var(--color-text-secondary)', marginTop: 8, lineHeight: 1.45 }}>{subtitle}</p>}
     </div>
   );
 }
 
-// ─── SectionHeader ────────────────────────────────────────────────────────────
+// ─── SectionHeader ───────────────────────────────────────────────────────────
 export function SectionHeader({ title, right }) {
   return (
-    <div className="flex items-center justify-between mb-4">
-      <h3 style={{ fontSize: 11, fontWeight: 600, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'var(--font-mono)' }}>{title}</h3>
+    <div className="flex items-center justify-between mb-3">
+      <h3 style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--color-text-secondary)', letterSpacing: '-0.01em' }}>{title}</h3>
       {right}
     </div>
   );
 }
 
-// ─── Card ─────────────────────────────────────────────────────────────────────
+// ─── Card ────────────────────────────────────────────────────────────────────
 export function Card({ children, className = '', clickable = false, onClick, id, style }) {
   return (
     <div
       id={id}
       onClick={onClick}
-      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 18, ...style }}
-      className={`${clickable ? 'tap cursor-pointer' : ''} ${className}`}
+      style={{
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-lg)',
+        ...style,
+      }}
+      className={`${clickable ? 'tap cursor-pointer card-lift' : ''} ${className}`}
     >
       {children}
     </div>
   );
 }
 
-// ─── Card2 — secondary surface card ──────────────────────────────────────────
+// ─── Card2 — inset / secondary surface ───────────────────────────────────────
 export function Card2({ children, className = '', style }) {
   return (
     <div
-      style={{ background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', borderRadius: 14, ...style }}
+      style={{ background: 'var(--color-surface-alt)', borderRadius: 'var(--radius-md)', ...style }}
       className={className}
     >
       {children}
@@ -230,29 +238,41 @@ export function Card2({ children, className = '', style }) {
   );
 }
 
-// ─── StatCard ─────────────────────────────────────────────────────────────────
+// ─── StatCard ────────────────────────────────────────────────────────────────
 export function StatCard({ icon, value, label, valueClass = '' }) {
   return (
     <Card className="p-4 flex flex-col gap-2">
-      <div style={{ marginBottom: 4, color: 'var(--color-text-tertiary)' }}>{icon}</div>
+      <div style={{ marginBottom: 2, color: 'var(--color-text-tertiary)' }}>{icon}</div>
       <div>
-        <span style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.02em', display: 'block' }} className={valueClass}>{value}</span>
-        <span style={{ fontSize: 11, color: 'var(--color-text-tertiary)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', display: 'block', marginTop: 4 }}>{label}</span>
+        <span
+          className={`font-display ${valueClass}`}
+          style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.03em', display: 'block' }}
+        >
+          {value}
+        </span>
+        <span style={{ fontSize: 12.5, color: 'var(--color-text-tertiary)', display: 'block', marginTop: 2 }}>{label}</span>
       </div>
     </Card>
   );
 }
 
-// ─── Tag ──────────────────────────────────────────────────────────────────────
+// ─── Tag ─────────────────────────────────────────────────────────────────────
 export function Tag({ children, icon, className = '' }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 500, color: 'var(--color-text-secondary)', background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', padding: '4px 10px', borderRadius: 999 }} className={className}>
+    <span
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 500,
+        color: 'var(--color-text-secondary)', background: 'var(--color-surface-alt)',
+        padding: '4px 10px', borderRadius: 999,
+      }}
+      className={className}
+    >
       {icon}{children}
     </span>
   );
 }
 
-// ─── Chip ─────────────────────────────────────────────────────────────────────
+// ─── Chip ────────────────────────────────────────────────────────────────────
 export function Chip({ children, active = false, onClick, className = '', style }) {
   return (
     <span
@@ -260,11 +280,11 @@ export function Chip({ children, active = false, onClick, className = '', style 
       className={`tap ${className}`}
       style={{
         display: 'inline-flex', alignItems: 'center', gap: 6,
-        padding: '6px 11px', borderRadius: 999,
-        fontSize: 12.5, fontWeight: 500,
-        background: active ? 'var(--color-lime)' : 'var(--color-surface-alt)',
-        border: active ? '1px solid var(--color-lime)' : '1px solid var(--color-border)',
-        color: active ? '#0a0e0c' : 'var(--color-text-secondary)',
+        padding: '6px 12px', borderRadius: 999,
+        fontSize: 13, fontWeight: 600,
+        background: active ? 'var(--color-brand)' : 'var(--color-surface)',
+        border: `1px solid ${active ? 'var(--color-brand)' : 'var(--color-border)'}`,
+        color: active ? 'var(--color-on-brand)' : 'var(--color-text-secondary)',
         whiteSpace: 'nowrap', cursor: onClick ? 'pointer' : 'default',
         ...style,
       }}
@@ -274,24 +294,23 @@ export function Chip({ children, active = false, onClick, className = '', style 
   );
 }
 
-// ─── Badge ────────────────────────────────────────────────────────────────────
+// ─── Badge ───────────────────────────────────────────────────────────────────
 const BADGE_VARIANTS = {
-  success: { bg: 'rgba(127,229,168,0.12)', color: 'var(--color-emerald)', border: 'rgba(127,229,168,0.25)' },
-  danger:  { bg: 'rgba(255,126,107,0.12)', color: 'var(--color-rose)',    border: 'rgba(255,126,107,0.25)' },
-  warning: { bg: 'rgba(251,191,36,0.12)',  color: 'var(--color-amber)',   border: 'rgba(251,191,36,0.25)' },
-  info:    { bg: 'rgba(200,255,58,0.1)',   color: 'var(--color-lime)',    border: 'rgba(200,255,58,0.25)' },
-  neutral: { bg: 'var(--color-surface-alt)', color: 'var(--color-text-secondary)', border: 'var(--color-border)' },
-  brand:   { bg: 'var(--color-lime)',      color: '#0a0e0c',              border: 'var(--color-lime)' },
+  success: { bg: 'var(--color-emerald-light)', color: 'var(--color-emerald)' },
+  danger:  { bg: 'var(--color-rose-light)',    color: 'var(--color-rose)' },
+  warning: { bg: 'var(--color-amber-light)',   color: 'var(--color-amber)' },
+  info:    { bg: 'var(--color-brand-light)',   color: 'var(--color-brand)' },
+  neutral: { bg: 'var(--color-surface-alt)',   color: 'var(--color-text-secondary)' },
+  brand:   { bg: 'var(--color-brand)',         color: 'var(--color-on-brand)' },
 };
 
 export function Badge({ children, variant = 'neutral' }) {
   const v = BADGE_VARIANTS[variant] || BADGE_VARIANTS.neutral;
   return (
     <span style={{
-      display: 'inline-flex', alignItems: 'center', fontSize: 10, fontWeight: 700,
-      textTransform: 'uppercase', letterSpacing: '0.08em',
-      padding: '3px 8px', borderRadius: 999,
-      background: v.bg, color: v.color, border: `1px solid ${v.border}`,
+      display: 'inline-flex', alignItems: 'center', fontSize: 11.5, fontWeight: 600,
+      padding: '3px 9px', borderRadius: 999,
+      background: v.bg, color: v.color,
     }}>
       {children}
     </span>
@@ -301,9 +320,9 @@ export function Badge({ children, variant = 'neutral' }) {
 // ─── StatusDot ───────────────────────────────────────────────────────────────
 export function StatusDot({ status }) {
   const color =
-    status === 'available' ? 'var(--color-lime)' :
-    status === 'busy'      ? 'var(--color-amber)' : 'var(--color-rose)';
-  return <span className="pulse-dot" style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />;
+    status === 'available' ? 'var(--color-rel-excellent)' :
+    status === 'busy'      ? 'var(--color-rel-moderate)' : 'var(--color-rel-poor)';
+  return <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />;
 }
 
 // ─── FilterChips ─────────────────────────────────────────────────────────────
@@ -320,20 +339,20 @@ export function FilterChips({ options, active, onChange, renderIcon }) {
   );
 }
 
-// ─── TabBar ───────────────────────────────────────────────────────────────────
+// ─── TabBar ──────────────────────────────────────────────────────────────────
 export function TabBar({ tabs, active, onChange }) {
   return (
-    <div style={{ display: 'flex', gap: 18, padding: '0 20px', borderBottom: '1px solid var(--color-border)' }}>
+    <div style={{ display: 'flex', gap: 20, padding: '0 20px', borderBottom: '1px solid var(--color-border)' }}>
       {tabs.map((t) => (
         <button
           key={t.id}
           onClick={() => onChange(t.id)}
           className="tap"
           style={{
-            padding: '10px 0', background: 'transparent', border: 'none',
+            padding: '11px 0', background: 'transparent', border: 'none',
             color: active === t.id ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)',
-            fontSize: 14, fontWeight: 500,
-            borderBottom: `2px solid ${active === t.id ? 'var(--color-lime)' : 'transparent'}`,
+            fontSize: 14, fontWeight: 600,
+            borderBottom: `2px solid ${active === t.id ? 'var(--color-brand)' : 'transparent'}`,
             marginBottom: -1,
           }}
         >
@@ -344,52 +363,60 @@ export function TabBar({ tabs, active, onChange }) {
   );
 }
 
-// ─── EmptyState ───────────────────────────────────────────────────────────────
-export function EmptyState({ icon, title, subtitle }) {
+// ─── EmptyState ──────────────────────────────────────────────────────────────
+export function EmptyState({ icon, title, subtitle, action }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 20px', gap: 12, textAlign: 'center' }}>
-      <div style={{ color: 'var(--color-text-tertiary)', marginBottom: 8 }}>{icon}</div>
-      <div>
-        <h3 style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text-primary)' }}>{title}</h3>
-        {subtitle && <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginTop: 4 }}>{subtitle}</p>}
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '64px 20px', gap: 10, textAlign: 'center' }}>
+      <div style={{
+        width: 48, height: 48, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'var(--color-surface-alt)', color: 'var(--color-text-tertiary)', marginBottom: 4,
+      }}>
+        {icon}
       </div>
+      <div>
+        <h3 className="font-display" style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em' }}>{title}</h3>
+        {subtitle && <p style={{ fontSize: 13.5, color: 'var(--color-text-secondary)', marginTop: 4, maxWidth: 300 }}>{subtitle}</p>}
+      </div>
+      {action}
     </div>
   );
 }
 
 // ─── BottomSheet ─────────────────────────────────────────────────────────────
-import { X } from 'lucide-react';
-
 export function BottomSheet({ open, onClose, title, subtitle, children }) {
   if (!open) return null;
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }} onClick={onClose}>
+    <div
+      style={{ position: 'fixed', inset: 0, background: 'rgba(14,16,19,0.35)', zIndex: 200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+      onClick={onClose}
+    >
       <div
         className="sheet-in"
         style={{
           width: '100%', maxWidth: 480,
           background: 'var(--color-surface)',
-          borderTopLeftRadius: 28, borderTopRightRadius: 28,
+          borderTopLeftRadius: 24, borderTopRightRadius: 24,
           padding: '14px 20px 36px',
           maxHeight: '85vh', overflowY: 'auto',
+          boxShadow: 'var(--shadow-lg)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--color-border-dark)', margin: '0 auto 16px' }} />
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--color-surface-2)', margin: '0 auto 16px' }} />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <h3 style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-text-primary)' }}>{title}</h3>
-          <button onClick={onClose} className="tap" style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-secondary)' }}>
+          <h3 className="font-display" style={{ fontSize: 20, fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.025em' }}>{title}</h3>
+          <button onClick={onClose} className="tap" style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--color-surface-alt)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-secondary)' }}>
             <X size={16} />
           </button>
         </div>
-        {subtitle && <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 20 }}>{subtitle}</p>}
+        {subtitle && <p style={{ fontSize: 13.5, color: 'var(--color-text-secondary)', marginBottom: 20 }}>{subtitle}</p>}
         {children}
       </div>
     </div>
   );
 }
 
-// ─── PrimaryButton — lime CTA ─────────────────────────────────────────────────
+// ─── PrimaryButton — the one blue thing on the screen ────────────────────────
 export function PrimaryButton({ children, onClick, disabled, id, className = '', style }) {
   return (
     <button
@@ -398,12 +425,35 @@ export function PrimaryButton({ children, onClick, disabled, id, className = '',
       disabled={disabled}
       className={`tap ${className}`}
       style={{
-        width: '100%', height: 56, borderRadius: 18,
+        width: '100%', height: 52, borderRadius: 'var(--radius-md)',
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
         fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em',
-        background: disabled ? 'var(--color-surface-alt)' : 'var(--color-lime)',
-        color: disabled ? 'var(--color-text-tertiary)' : '#0a0e0c',
+        background: disabled ? 'var(--color-surface-2)' : 'var(--color-brand)',
+        color: disabled ? 'var(--color-text-tertiary)' : 'var(--color-on-brand)',
         border: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
+        boxShadow: disabled ? 'none' : 'var(--shadow-brand)',
+        ...style,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+// ─── SecondaryButton — neutral, for the non-committal path ───────────────────
+export function SecondaryButton({ children, onClick, disabled, className = '', style }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`tap ${className}`}
+      style={{
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+        height: 44, padding: '0 18px', borderRadius: 'var(--radius-md)',
+        fontSize: 14, fontWeight: 600,
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-border-dark)',
+        color: 'var(--color-text-primary)',
         opacity: disabled ? 0.5 : 1,
         ...style,
       }}
@@ -418,15 +468,12 @@ export function GhostButton({ children, onClick, className = '', style }) {
   return (
     <button
       onClick={onClick}
-      className={`tap ${className}`}
+      className={`tap glass ${className}`}
       style={{
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-        padding: '10px 18px', borderRadius: 14,
-        fontSize: 13, fontWeight: 500,
+        padding: '10px 16px', borderRadius: 'var(--radius-md)',
+        fontSize: 13.5, fontWeight: 600,
         color: 'var(--color-text-primary)',
-        background: 'rgba(15,20,17,0.85)',
-        border: '1px solid var(--color-border-dark)',
-        backdropFilter: 'blur(20px)',
         ...style,
       }}
     >
@@ -435,20 +482,17 @@ export function GhostButton({ children, onClick, className = '', style }) {
   );
 }
 
-// ─── IconButton ───────────────────────────────────────────────────────────────
+// ─── IconButton ──────────────────────────────────────────────────────────────
 export function IconButton({ children, onClick, ariaLabel, id, className = '', style }) {
   return (
     <button
       id={id}
       onClick={onClick}
       aria-label={ariaLabel}
-      className={`tap ${className}`}
+      className={`tap glass ${className}`}
       style={{
-        width: 40, height: 40, borderRadius: 12,
+        width: 40, height: 40, borderRadius: 'var(--radius-md)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        background: 'rgba(15,20,17,0.85)',
-        border: '1px solid var(--color-border-dark)',
-        backdropFilter: 'blur(20px)',
         color: 'var(--color-text-primary)',
         ...style,
       }}
@@ -458,41 +502,42 @@ export function IconButton({ children, onClick, ariaLabel, id, className = '', s
   );
 }
 
-// ─── Divider ──────────────────────────────────────────────────────────────────
+// ─── Divider ─────────────────────────────────────────────────────────────────
 export function Divider() {
   return <div style={{ height: 1, width: '100%', background: 'var(--color-border)', margin: '16px 0' }} />;
 }
 
-// ─── InputField ───────────────────────────────────────────────────────────────
-export function InputField({ label, ...props }) {
+// ─── InputField ──────────────────────────────────────────────────────────────
+export function InputField({ label, hint, ...props }) {
   return (
-    <div style={{ marginBottom: 20 }}>
+    <div style={{ marginBottom: 18 }}>
       {label && (
-        <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 8 }}>
+        <label style={{ display: 'block', fontSize: 13.5, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 6 }}>
           {label}
         </label>
       )}
       <input
         {...props}
         style={{
-          width: '100%', padding: '14px 16px',
+          width: '100%', padding: '13px 14px',
           background: 'var(--color-surface)',
           border: '1px solid var(--color-border-dark)',
-          borderRadius: 14,
+          borderRadius: 'var(--radius-md)',
           color: 'var(--color-text-primary)',
-          fontSize: 14, fontFamily: 'inherit', outline: 'none',
+          fontSize: 15, fontFamily: 'inherit', outline: 'none',
         }}
       />
+      {hint && <p style={{ fontSize: 12.5, color: 'var(--color-text-tertiary)', marginTop: 6 }}>{hint}</p>}
     </div>
   );
 }
 
-// ─── TextAreaField ────────────────────────────────────────────────────────────
-export function TextAreaField({ label, ...props }) {
+// ─── TextAreaField ───────────────────────────────────────────────────────────
+export function TextAreaField({ label, hint, ...props }) {
   return (
-    <div style={{ marginBottom: 20 }}>
+    <div style={{ marginBottom: 18 }}>
       {label && (
-        <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--color-text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-mono)', marginBottom: 8 }}>
+        <label style={{ display: 'block', fontSize: 13.5, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 6 }}>
           {label}
         </label>
       )}
@@ -502,16 +547,17 @@ export function TextAreaField({ label, ...props }) {
           width: '100%', padding: '12px 14px',
           background: 'var(--color-surface)',
           border: '1px solid var(--color-border-dark)',
-          borderRadius: 14,
+          borderRadius: 'var(--radius-md)',
           color: 'var(--color-text-primary)',
-          fontSize: 13.5, fontFamily: 'inherit', outline: 'none', resize: 'none', lineHeight: 1.4,
+          fontSize: 14.5, fontFamily: 'inherit', outline: 'none', resize: 'none', lineHeight: 1.45,
         }}
       />
+      {hint && <p style={{ fontSize: 12.5, color: 'var(--color-text-tertiary)', marginTop: 6 }}>{hint}</p>}
     </div>
   );
 }
 
-// ─── ChipSelect ───────────────────────────────────────────────────────────────
+// ─── ChipSelect ──────────────────────────────────────────────────────────────
 export function ChipSelect({ options, selected, onChange, multi = false }) {
   const handleClick = (opt) => {
     if (multi) {
@@ -522,7 +568,7 @@ export function ChipSelect({ options, selected, onChange, multi = false }) {
   };
   const isActive = (opt) => (multi ? selected.includes(opt) : selected === opt);
   return (
-    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
+    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
       {options.map((opt) => (
         <Chip key={opt} active={isActive(opt)} onClick={() => handleClick(opt)}>{opt}</Chip>
       ))}
@@ -530,9 +576,7 @@ export function ChipSelect({ options, selected, onChange, multi = false }) {
   );
 }
 
-// ─── MenuItem ─────────────────────────────────────────────────────────────────
-import { ChevronRight } from 'lucide-react';
-
+// ─── MenuItem ────────────────────────────────────────────────────────────────
 export function MenuItem({ icon, label, desc, onClick, isLast = false }) {
   const IconComp = icon;
   return (
@@ -542,13 +586,13 @@ export function MenuItem({ icon, label, desc, onClick, isLast = false }) {
       style={{
         width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0',
         textAlign: 'left', background: 'transparent', border: 'none',
-        borderBottom: !isLast ? '1px solid var(--color-border)' : 'none',
+        borderBottom: !isLast ? '1px solid var(--color-border-light)' : 'none',
       }}
     >
-      {IconComp && <div style={{ color: 'var(--color-text-secondary)' }}><IconComp size={20} /></div>}
+      {IconComp && <div style={{ color: 'var(--color-text-secondary)' }}><IconComp size={19} /></div>}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ fontSize: 14, color: 'var(--color-text-primary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
-        {desc && <span style={{ fontSize: 12, color: 'var(--color-text-tertiary)', marginTop: 2, display: 'block' }}>{desc}</span>}
+        <span style={{ fontSize: 14.5, fontWeight: 500, color: 'var(--color-text-primary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+        {desc && <span style={{ fontSize: 12.5, color: 'var(--color-text-tertiary)', marginTop: 2, display: 'block' }}>{desc}</span>}
       </div>
       <ChevronRight size={16} style={{ color: 'var(--color-text-tertiary)', flexShrink: 0 }} />
     </button>

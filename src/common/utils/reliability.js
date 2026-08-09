@@ -1,3 +1,4 @@
+// Vivid tier colour — for dots, rings, bars and map pins.
 export function relColor(score) {
   if (score >= 0.85) return 'var(--color-rel-excellent)';
   if (score >= 0.7) return 'var(--color-rel-good)';
@@ -5,11 +6,21 @@ export function relColor(score) {
   return 'var(--color-rel-poor)';
 }
 
+// Darkened tier colour — for type. Same meaning, but readable at 13px on white.
+export function relTextColor(score) {
+  if (score >= 0.85) return 'var(--color-rel-excellent-text)';
+  if (score >= 0.7) return 'var(--color-rel-good-text)';
+  if (score >= 0.5) return 'var(--color-rel-moderate-text)';
+  return 'var(--color-rel-poor-text)';
+}
+
+// Raw hex — needed where colour is injected into a string (Leaflet divIcon HTML)
+// and CSS variables are not resolvable.
 export function relHex(score) {
-  if (score >= 0.85) return '#a3e635';
-  if (score >= 0.7) return '#4ade80';
-  if (score >= 0.5) return '#fbbf24';
-  return '#f87171';
+  if (score >= 0.85) return '#0e9f6e';
+  if (score >= 0.7) return '#5a9e32';
+  if (score >= 0.5) return '#e8a317';
+  return '#e5484d';
 }
 
 export function relLabel(score) {

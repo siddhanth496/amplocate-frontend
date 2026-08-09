@@ -69,7 +69,7 @@ export default function LocationSearch({
   return (
     <div ref={boxRef} className="relative w-full">
       <div
-        className="flex items-center gap-2 rounded-2xl px-3.5"
+        className="flex items-center gap-2 rounded-xl px-3.5"
         style={{
           background: 'var(--color-surface)',
           border: '1px solid var(--color-border-dark)',
@@ -92,7 +92,7 @@ export default function LocationSearch({
 
       {open && (results.length > 0 || allowMyLocation) && (
         <div
-          className="absolute left-0 right-0 mt-1.5 rounded-2xl overflow-hidden screen-fade"
+          className="absolute left-0 right-0 mt-1.5 rounded-xl overflow-hidden screen-fade"
           style={{ background: 'var(--color-surface)', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--color-border)', zIndex: 900 }}
         >
           {allowMyLocation && (

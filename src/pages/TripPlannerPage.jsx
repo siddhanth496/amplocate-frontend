@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Route as RouteIcon, BatteryCharging, Clock, IndianRupee, History,
   ShieldCheck, AlertTriangle, Navigation, ChevronRight, ArrowUpDown, Zap,
@@ -54,7 +54,7 @@ function StopsEditor({ points, activeField, setActiveField, onSwap, onAddWaypoin
   ];
 
   return (
-    <div className="rounded-3xl px-4"
+    <div className="rounded-2xl px-4"
       style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
       <div className="flex items-center">
         <div className="flex-1 min-w-0">
@@ -70,7 +70,7 @@ function StopsEditor({ points, activeField, setActiveField, onSwap, onAddWaypoin
                     <Icon size={15} style={{ color: row.color }} className="shrink-0"
                       fill={row.id === 'origin' ? row.color : 'none'} />
                     <div className="min-w-0 flex-1">
-                      <div className="text-[10px] font-bold uppercase tracking-wider"
+                      <div className="text-[12px] font-bold"
                         style={{ color: active ? 'var(--color-brand)' : 'var(--color-text-tertiary)' }}>
                         {row.label}
                       </div>
@@ -122,7 +122,7 @@ function SocBar({ from, to, danger = false }) {
           background: danger ? 'var(--color-rose)' : 'var(--amp-gradient)',
         }} />
       </div>
-      <span className="text-[11px] font-bold tabular-nums shrink-0" style={{ color: 'var(--color-text-secondary)' }}>
+      <span className="text-[12.5px] font-bold tabular-nums shrink-0" style={{ color: 'var(--color-text-secondary)' }}>
         {Math.round(from)}% → {Math.round(to)}%
       </span>
     </div>
@@ -134,19 +134,19 @@ function Alternatives({ stop, onPick, busy }) {
   if (!stop.alternatives?.length) return null;
   return (
     <div className="mt-3">
-      <div className="text-[10px] font-bold uppercase tracking-wider mb-1.5 flex items-center gap-1"
+      <div className="text-[12px] font-bold mb-1.5 flex items-center gap-1"
         style={{ color: 'var(--color-text-tertiary)' }}>
         <Sparkles size={11} /> Other chargers on this leg
       </div>
       <div className="flex gap-2 overflow-x-auto hide-scrollbar -mx-1 px-1 pb-1">
         {stop.alternatives.map((alt) => (
-          <div key={alt.charger.id} className="shrink-0 w-[190px] p-3 rounded-2xl"
+          <div key={alt.charger.id} className="shrink-0 w-[190px] p-3 rounded-xl"
             style={{ background: 'var(--color-surface-alt)', border: '1px solid var(--color-border-light)' }}>
             <div className="flex items-center gap-2">
               <RelRing score={alt.charger.reliability_score} size={32} />
               <div className="min-w-0">
                 <div className="text-xs font-bold truncate">{alt.charger.name}</div>
-                <div className="text-[10px]" style={{ color: 'var(--color-text-tertiary)' }}>
+                <div className="text-[12px]" style={{ color: 'var(--color-text-tertiary)' }}>
                   ~{Math.round(alt.dwell_minutes)} min · arrive {Math.round(alt.arrival_soc)}%
                 </div>
               </div>
@@ -154,7 +154,7 @@ function Alternatives({ stop, onPick, busy }) {
             <button
               disabled={busy}
               onClick={() => onPick(stop.leg_index, alt.charger.id)}
-              className="tap mt-2 w-full py-1.5 rounded-lg text-[11px] font-bold disabled:opacity-40"
+              className="tap mt-2 w-full py-1.5 rounded-lg text-[12.5px] font-bold disabled:opacity-40"
               style={{ background: 'var(--color-surface)', color: 'var(--color-brand)', border: '1px solid var(--color-border)' }}
             >
               Use this charger
@@ -210,7 +210,7 @@ function Timeline({ plan, points, soc, navigate, onPickAlternative, busy }) {
               <BatteryCharging size={12} color="#fff" />
             </div>
           }>
-          <div className="p-3 rounded-2xl -mt-1" style={{ background: 'var(--amp-gradient-soft)' }}>
+          <div className="p-3 rounded-xl -mt-1" style={{ background: 'var(--amp-gradient-soft)' }}>
             <button onClick={() => navigate(`/charger/${stop.charger.id}`)} className="tap w-full text-left">
               <div className="flex items-center gap-2.5">
                 <RelRing score={stop.charger.reliability_score} />
@@ -232,7 +232,7 @@ function Timeline({ plan, points, soc, navigate, onPickAlternative, busy }) {
               )}
             </div>
             {stop.backup_charger && (
-              <div className="mt-2 flex items-start gap-1.5 text-[11px] font-semibold p-2 rounded-lg"
+              <div className="mt-2 flex items-start gap-1.5 text-[12.5px] font-semibold p-2 rounded-lg"
                 style={{ background: 'var(--color-emerald-light)', color: 'var(--color-emerald)' }}>
                 <ShieldCheck size={13} className="shrink-0 mt-px" />
                 Backup verified: {stop.backup_charger.name}
@@ -252,12 +252,12 @@ function Timeline({ plan, points, soc, navigate, onPickAlternative, busy }) {
   ].join('|');
 
   return (
-    <div className="p-4 rounded-3xl screen-fade" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+    <div className="p-4 rounded-2xl screen-fade" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
       {rows}
       <a
         href={`https://www.google.com/maps/dir/?api=1&origin=${points.origin.lat},${points.origin.lng}&destination=${points.dest.lat},${points.dest.lng}${gmapsWaypoints ? `&waypoints=${encodeURIComponent(gmapsWaypoints)}` : ''}`}
         target="_blank" rel="noreferrer"
-        className="tap mt-1 w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold text-white"
+        className="tap mt-1 w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold text-white"
         style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
       >
         <Navigation size={15} /> Start navigation
@@ -269,11 +269,20 @@ function Timeline({ plan, points, soc, navigate, onPickAlternative, busy }) {
 /* ── Page ───────────────────────────────────────────────────────────── */
 export default function TripPlannerPage() {
   const navigate = useNavigate();
+  const [search] = useSearchParams();
   const [vehicles, setVehicles] = useState([]);
   const [vehicleId, setVehicleId] = useState(null);
-  const [points, setPoints] = useState({ origin: null, waypoints: [], dest: null });
+  // Arriving from a charger ("Plan a trip here") prefills the destination, so
+  // the planner is never an empty form you have to fill from nothing.
+  const [points, setPoints] = useState(() => {
+    const lat = Number(search.get('lat'));
+    const lng = Number(search.get('lng'));
+    const label = search.get('to');
+    const dest = label && Number.isFinite(lat) && Number.isFinite(lng) ? { label, lat, lng } : null;
+    return { origin: null, waypoints: [], dest };
+  });
   const [soc, setSoc] = useState(80);
-  const [activeField, setActiveField] = useState('dest');
+  const [activeField, setActiveField] = useState(search.get('lat') ? 'origin' : 'dest');
   const [pins, setPins] = useState({});
   // waypoint index -> charger id: "I'll charge here" declarations (hop mechanic)
   const [wpCharges, setWpCharges] = useState({});
@@ -390,14 +399,14 @@ export default function TripPlannerPage() {
 
   const markers = useMemo(() => {
     const m = [];
-    if (points.origin) m.push({ pos: [points.origin.lat, points.origin.lng], color: '#a3e635', label: 'Start' });
+    if (points.origin) m.push({ pos: [points.origin.lat, points.origin.lng], color: '#1b4cf0', label: 'Start' });
     points.waypoints.filter(Boolean).forEach((w, i) =>
       m.push({ pos: [w.lat, w.lng], color: '#d97706', label: `Stop ${i + 1}` }));
     if (points.dest) m.push({ pos: [points.dest.lat, points.dest.lng], color: '#fb7185', label: 'End' });
     return m;
   }, [points]);
 
-  const confidenceColor = { high: '#34d399', medium: '#fbbf24', low: '#f87171' }[plan?.confidence] || '#94a3b8';
+  const confidenceColor = { high: '#7ef0c0', medium: '#ffd76a', low: '#ffb3b6' }[plan?.confidence] || '#94a3b8';
 
   return (
     <div className="h-full flex flex-col lg:flex-row">
@@ -431,7 +440,7 @@ export default function TripPlannerPage() {
                   allowMyLocation={activeField === 'origin'}
                   onSelect={setPoint}
                 />
-                <div className="mt-2 text-[11px] text-center" style={{ color: 'var(--color-text-tertiary)' }}>
+                <div className="mt-2 text-[12.5px] text-center" style={{ color: 'var(--color-text-tertiary)' }}>
                   …or tap directly on the map
                 </div>
               </div>
@@ -443,7 +452,7 @@ export default function TripPlannerPage() {
               {recents.map((r, i) => (
                 <button key={i}
                   onClick={() => { setPoints({ origin: r.origin, waypoints: r.waypoints || [], dest: r.dest }); setActiveField(null); setPlan(null); setPins({}); }}
-                  className="tap w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl text-left"
+                  className="tap w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-left"
                   style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border-light)' }}>
                   <History size={14} className="shrink-0" style={{ color: 'var(--color-text-tertiary)' }} />
                   <span className="text-xs font-medium truncate" style={{ color: 'var(--color-text-secondary)' }}>
@@ -455,7 +464,7 @@ export default function TripPlannerPage() {
           )}
 
           {/* Vehicle + battery */}
-          <div className="flex items-center gap-2.5 p-3.5 rounded-2xl"
+          <div className="flex items-center gap-2.5 p-3.5 rounded-xl"
             style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
             {vehicles.length === 0 ? (
               <button onClick={() => navigate('/add-vehicle')} className="tap flex-1 py-2 rounded-xl text-xs font-bold"
@@ -488,7 +497,7 @@ export default function TripPlannerPage() {
             <button
               onClick={() => runPlan({})}
               disabled={!readyToPlan || busy}
-              className="tap w-full py-3.5 rounded-2xl text-sm font-bold text-white disabled:opacity-40"
+              className="tap w-full py-3.5 rounded-xl text-sm font-bold text-white disabled:opacity-40"
               style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
             >
               {busy ? 'Planning your trip…'
@@ -499,24 +508,24 @@ export default function TripPlannerPage() {
             </button>
           )}
 
-          {error && <div className="p-3.5 rounded-2xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>{error}</div>}
+          {error && <div className="p-3.5 rounded-xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>{error}</div>}
 
           {plan && (
             <div className="space-y-3 screen-fade">
               {/* Gradient summary hero */}
-              <div className="p-5 rounded-3xl text-white relative overflow-hidden"
-                style={{ background: 'linear-gradient(135deg, #0d1104 0%, #24380a 55%, #4d7c0f 130%)', border: '1px solid rgba(163,230,53,0.25)', boxShadow: 'var(--shadow-brand)' }}>
+              <div className="p-5 rounded-2xl text-white relative overflow-hidden"
+                style={{ background: 'linear-gradient(135deg, #0a1f7a 0%, #1b4cf0 58%, #4f7bff 130%)', border: 'none', boxShadow: 'var(--shadow-brand)' }}>
                 <div className="flex items-center justify-between">
                   <div className="font-display text-base font-bold">
                     {plan.feasible ? (chargeStops.length === 0 ? 'No charging needed ⚡' : `${chargeStops.length} charging stop${chargeStops.length > 1 ? 's' : ''}`) : 'Not safely plannable'}
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-md"
+                    <span className="text-[12px] font-bold px-2 py-1 rounded-md"
                       style={{ background: 'rgba(255,255,255,0.15)', color: confidenceColor }}>
                       {plan.confidence}
                     </span>
                     <button onClick={() => { setPlan(null); setPins({}); }}
-                      className="tap text-[11px] font-bold px-2 py-1 rounded-md"
+                      className="tap text-[12.5px] font-bold px-2 py-1 rounded-md"
                       style={{ background: 'rgba(255,255,255,0.15)', color: '#fff' }}>
                       Edit
                     </button>
@@ -530,14 +539,14 @@ export default function TripPlannerPage() {
                   ].map(([v, l]) => (
                     <div key={l}>
                       <div className="font-display text-xl font-bold tabular-nums leading-none">{v}</div>
-                      <div className="text-[10px] mt-1 uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.65)' }}>{l}</div>
+                      <div className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.65)' }}>{l}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
               {plan.warnings?.map((w, i) => (
-                <div key={i} className="flex items-start gap-2 text-xs p-3 rounded-2xl"
+                <div key={i} className="flex items-start gap-2 text-xs p-3 rounded-xl"
                   style={{ background: 'var(--color-amber-light)', color: 'var(--color-amber)' }}>
                   <AlertTriangle size={13} className="shrink-0 mt-0.5" /> {w}
                 </div>
@@ -548,26 +557,26 @@ export default function TripPlannerPage() {
                   onPickAlternative={pickAlternative} busy={busy} />
               ) : (
                 <>
-                  <div className="p-4 rounded-2xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
+                  <div className="p-4 rounded-xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
                     {plan.note}
                   </div>
                   {plan.suggestions?.length > 0 && (
-                    <div className="p-4 rounded-3xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+                    <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                       <div className="flex items-center gap-2">
                         <BatteryCharging size={15} style={{ color: 'var(--color-brand)' }} />
                         <div className="font-display text-sm font-bold">Chargers you can reach right now</div>
                       </div>
-                      <p className="text-[11px] mt-0.5 mb-3" style={{ color: 'var(--color-text-tertiary)' }}>
+                      <p className="text-[12.5px] mt-0.5 mb-3" style={{ color: 'var(--color-text-tertiary)' }}>
                         Add one as a stop — you'll charge there, then we replan the rest.
                       </p>
                       <div className="space-y-2">
                         {plan.suggestions.map((s) => (
-                          <div key={s.charger.id} className="p-3 rounded-2xl" style={{ background: 'var(--color-surface-alt)' }}>
+                          <div key={s.charger.id} className="p-3 rounded-xl" style={{ background: 'var(--color-surface-alt)' }}>
                             <div className="flex items-center gap-2.5">
                               <RelRing score={s.charger.reliability_score} size={34} />
                               <div className="min-w-0 flex-1">
                                 <div className="text-xs font-bold truncate">{s.charger.name}</div>
-                                <div className="text-[10px]" style={{ color: 'var(--color-text-tertiary)' }}>
+                                <div className="text-[12px]" style={{ color: 'var(--color-text-tertiary)' }}>
                                   arrive at {Math.round(s.arrival_soc)}% · charge to {Math.round(s.target_soc)}% in ~{Math.round(s.dwell_minutes)} min
                                 </div>
                               </div>
@@ -588,7 +597,7 @@ export default function TripPlannerPage() {
                                   setPins({});
                                   runPlan({}, wps, charges);
                                 }}
-                                className="tap shrink-0 px-3 py-2 rounded-xl text-[11px] font-bold disabled:opacity-40"
+                                className="tap shrink-0 px-3 py-2 rounded-xl text-[12.5px] font-bold disabled:opacity-40"
                                 style={{ background: 'var(--amp-gradient)', boxShadow: 'var(--shadow-brand)' }}
                               >
                                 Add as stop

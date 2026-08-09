@@ -1,98 +1,188 @@
 @import "tailwindcss";
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Amplocate design system — "Signal"
+
+   One idea drives the whole palette: colour means something. The interface is
+   a warm off-white with near-black type, and the only saturated things on
+   screen are (a) the one primary action and (b) reliability status. If a
+   charger card is red, your eye goes there because nothing else is competing.
+
+   Light is the default because people look for chargers outdoors, in daylight,
+   on a phone. Dark is available via [data-theme="dark"] on <html>.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Space Grotesk', 'Inter', ui-sans-serif, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Courier New', ui-monospace, monospace;
+  --font-display: 'Inter Tight', 'Inter', ui-sans-serif, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-  /* ── Amplocate dark: charcoal + volt green ── */
-  --color-bg:            #0c0e10;
-  --color-surface:       #15181c;
-  --color-surface-alt:   #1b1f24;
-  --color-surface-2:     #23282e;
-  --color-surface-hover: #1b1f24;
+  /* ── Canvas & surfaces ── */
+  --color-bg:            #faf9f6;
+  --color-surface:       #ffffff;
+  --color-surface-alt:   #f2f2ed;
+  --color-surface-2:     #e6e6df;
+  --color-surface-hover: #f6f6f1;
 
-  /* ── Volt brand ── */
-  --color-brand:        #a3e635;
-  --color-brand-hover:  #bef264;
-  --color-brand-light:  rgba(163,230,53,0.12);
-  --color-accent:       #a3e635;
-  --color-accent-hover: #bef264;
+  /* ── Brand: electric blue. Actions only — never decoration. ── */
+  --color-brand:        #1b4cf0;
+  --color-brand-hover:  #1740d6;
+  --color-brand-light:  rgba(27, 76, 240, 0.09);
+  --color-brand-ring:   rgba(27, 76, 240, 0.22);
+  --color-on-brand:     #ffffff;
+  --color-accent:       #1b4cf0;
+  --color-accent-hover: #1740d6;
 
-  /* legacy alias */
-  --color-lime:        #a3e635;
-  --color-lime-dim:    #84cc16;
+  /* legacy aliases — old code paths still reference these */
+  --color-lime:     #1b4cf0;
+  --color-lime-dim: #1740d6;
 
-  /* ── Reliability tier colors ── */
-  --color-rel-excellent: #a3e635;
-  --color-rel-good:      #4ade80;
+  /* ── Reliability tiers: the only place four colours are allowed ──
+     Two variants per tier. The vivid one is for shapes — dots, rings, map
+     pins — where saturation reads at a glance. The -text one is darkened to
+     clear 4.5:1 on white, because the same green that pops as a 8px dot is
+     unreadable as 13px type. */
+  --color-rel-excellent: #0e9f6e;
+  --color-rel-good:      #5a9e32;
+  --color-rel-moderate:  #e8a317;
+  --color-rel-poor:      #e5484d;
+
+  --color-rel-excellent-text: #04704b;
+  --color-rel-good-text:      #446f21;
+  --color-rel-moderate-text:  #8a5a06;
+  --color-rel-poor-text:      #c62a2f;
+
+  /* ── Semantic. These are used almost entirely as *text* on tinted chips,
+     so they carry the darkened values; the tints stay light. ── */
+  --color-emerald:       #04704b;
+  --color-emerald-light: rgba(14, 159, 110, 0.10);
+  --color-rose:          #c62a2f;
+  --color-rose-light:    rgba(229, 72, 77, 0.09);
+  --color-amber:         #8a5a06;
+  --color-amber-light:   rgba(232, 163, 23, 0.13);
+
+  /* ── Lines ── */
+  --color-border:       rgba(14, 16, 19, 0.10);
+  --color-border-light: rgba(14, 16, 19, 0.06);
+  --color-border-dark:  rgba(14, 16, 19, 0.18);
+
+  /* ── Ink ── */
+  --color-text-primary:   #0e1013;
+  --color-text-secondary: #545b66;
+  --color-text-tertiary:  #8a9199;
+  --color-text-inverse:   #ffffff;
+
+  /* ── Elevation: light UIs need far less shadow than dark ones ── */
+  --shadow-sm:    0 1px 2px rgba(14, 16, 19, 0.06);
+  --shadow-md:    0 4px 16px -4px rgba(14, 16, 19, 0.10);
+  --shadow-lg:    0 16px 40px -12px rgba(14, 16, 19, 0.18);
+  --shadow-nav:   0 -1px 0 rgba(14, 16, 19, 0.08);
+  --shadow-brand: 0 6px 20px -6px rgba(27, 76, 240, 0.38);
+
+  /* ── Radius scale: tighter than before. Utility, not bubblegum. ── */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 22px;
+}
+
+/* ── Dark theme: same token names, different values ─────────────────────── */
+:root[data-theme='dark'] {
+  --color-bg:            #0f1115;
+  --color-surface:       #171a20;
+  --color-surface-alt:   #1e222a;
+  --color-surface-2:     #272c35;
+  --color-surface-hover: #1e222a;
+
+  --color-brand:        #5b83ff;
+  --color-brand-hover:  #7b9cff;
+  --color-brand-light:  rgba(91, 131, 255, 0.14);
+  --color-brand-ring:   rgba(91, 131, 255, 0.3);
+  --color-on-brand:     #06122e;
+  --color-lime:         #5b83ff;
+
+  --color-rel-excellent: #34d399;
+  --color-rel-good:      #86c33f;
   --color-rel-moderate:  #fbbf24;
-  --color-rel-poor:      #f87171;
+  --color-rel-poor:      #fb7185;
 
-  /* ── Semantic aliases ── */
-  --color-emerald:       #4ade80;
-  --color-emerald-light: rgba(74,222,128,0.12);
+  /* On dark, the vivid tier colours already clear 4.5:1 — no darkening needed. */
+  --color-rel-excellent-text: #34d399;
+  --color-rel-good-text:      #86c33f;
+  --color-rel-moderate-text:  #fbbf24;
+  --color-rel-poor-text:      #fb7185;
+
+  --color-emerald:       #34d399;
+  --color-emerald-light: rgba(52, 211, 153, 0.13);
   --color-rose:          #fb7185;
-  --color-rose-light:    rgba(251,113,133,0.12);
+  --color-rose-light:    rgba(251, 113, 133, 0.13);
   --color-amber:         #fbbf24;
-  --color-amber-light:   rgba(251,191,36,0.12);
+  --color-amber-light:   rgba(251, 191, 36, 0.14);
 
-  /* ── Borders ── */
-  --color-border:       rgba(240,245,235,0.08);
-  --color-border-light: rgba(240,245,235,0.05);
-  --color-border-dark:  rgba(240,245,235,0.16);
+  --color-border:       rgba(236, 240, 248, 0.10);
+  --color-border-light: rgba(236, 240, 248, 0.06);
+  --color-border-dark:  rgba(236, 240, 248, 0.18);
 
-  /* ── Text ── */
-  --color-text-primary:   #f2f5ee;
-  --color-text-secondary: #a9b1a3;
-  --color-text-tertiary:  #6f7869;
+  --color-text-primary:   #eef1f6;
+  --color-text-secondary: #a2aab8;
+  --color-text-tertiary:  #6d7684;
 
-  /* ── Shadows ── */
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
-  --shadow-md: 0 6px 20px -6px rgba(0,0,0,0.65);
-  --shadow-lg: 0 18px 44px -12px rgba(0,0,0,0.8);
-  --shadow-nav: 0 -1px 0 rgba(240,245,235,0.08);
-  --shadow-brand: 0 6px 24px -6px rgba(163,230,53,0.35);
+  --shadow-sm:  0 1px 3px rgba(0, 0, 0, 0.45);
+  --shadow-md:  0 6px 20px -6px rgba(0, 0, 0, 0.6);
+  --shadow-lg:  0 18px 44px -12px rgba(0, 0, 0, 0.75);
+  --shadow-nav: 0 -1px 0 rgba(236, 240, 248, 0.08);
 }
 
-/* ── Amplocate brand: "Volt Current" gradient + display face ── */
+/* ── Brand gradient. Used sparingly: hero marks and the primary CTA. ── */
 :root {
-  --amp-gradient: linear-gradient(118deg, #65a30d 0%, #a3e635 60%, #d4f76a 100%);
-  --amp-gradient-soft: linear-gradient(118deg, rgba(101,163,13,0.14), rgba(163,230,53,0.10));
+  --amp-gradient: linear-gradient(118deg, #1b4cf0 0%, #3a6bff 58%, #6d92ff 100%);
+  --amp-gradient-soft: linear-gradient(118deg, rgba(27, 76, 240, 0.08), rgba(109, 146, 255, 0.05));
+}
+:root[data-theme='dark'] {
+  --amp-gradient: linear-gradient(118deg, #2b57e8 0%, #5b83ff 58%, #8fabff 100%);
+  --amp-gradient-soft: linear-gradient(118deg, rgba(91, 131, 255, 0.16), rgba(143, 171, 255, 0.08));
 }
 
-.font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+.font-display { font-family: var(--font-display); letter-spacing: -0.025em; }
 
-.amp-gradient-bg { background: var(--amp-gradient); }
+.amp-gradient-bg { background: var(--amp-gradient); color: var(--color-on-brand); }
 .amp-gradient-text {
   background: var(--amp-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
-
-/* Bright volt surfaces need dark ink — overrides text-white utilities on CTAs */
+/* Blue surfaces take white ink — the inverse of the old volt theme. */
 .amp-gradient-bg,
 [style*="--amp-gradient)"] {
-  color: #141b04 !important;
+  color: var(--color-on-brand) !important;
 }
 
-/* glass panel for overlays on maps (dark) */
+/* Panels floating over the map. On light this is frosted white, not black. */
 .glass {
-  background: rgba(18,21,25,0.82);
-  backdrop-filter: blur(14px) saturate(150%);
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
-  border: 1px solid rgba(240,245,235,0.09);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--color-border);
   box-shadow: var(--shadow-md);
 }
 
-/* lift on hover for cards */
-.card-lift { transition: transform 0.18s ease, box-shadow 0.18s ease; }
-.card-lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.card-lift { transition: box-shadow 0.18s ease, border-color 0.18s ease; }
+.card-lift:hover { box-shadow: var(--shadow-md); border-color: var(--color-border-dark); }
 
-/* ── Skeleton shimmer loaders ── */
+/* ── Focus: visible, branded, never removed ── */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ── Skeleton shimmer ── */
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
+  0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 .skeleton {
@@ -102,7 +192,7 @@
     var(--color-surface-alt) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.6s ease-in-out infinite;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 
 @layer base {
@@ -130,19 +220,23 @@
   }
   input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: var(--color-brand);
     cursor: pointer;
-    border: 3px solid var(--color-bg);
-    box-shadow: 0 1px 8px rgba(163,230,53,0.45);
+    border: 3px solid var(--color-surface);
+    box-shadow: 0 1px 6px rgba(27, 76, 240, 0.4);
   }
 
+  input[type="checkbox"] { accent-color: var(--color-brand); }
+
   select, option {
-    background-color: var(--color-surface-alt);
+    background-color: var(--color-surface);
     color: var(--color-text-primary);
   }
+
+  ::placeholder { color: var(--color-text-tertiary); }
 }
 
 @layer utilities {
@@ -156,38 +250,36 @@
   .tabular-nums { font-variant-numeric: tabular-nums; }
 }
 
-/* ── Map grid background (dark) ── */
+/* ── Map ── */
 .map-grid {
-  background-color: #101317;
+  background-color: var(--color-surface-alt);
   background-image:
-    linear-gradient(rgba(163,230,53,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(163,230,53,0.05) 1px, transparent 1px);
+    linear-gradient(rgba(14, 16, 19, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 16, 19, 0.04) 1px, transparent 1px);
   background-size: 32px 32px, 32px 32px;
 }
 
-/* ── Leaflet overrides (dark) ── */
 .leaflet-container {
   font-family: var(--font-sans);
-  background: #101317;
+  background: var(--color-surface-alt);
 }
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
   background: var(--color-surface);
   color: var(--color-text-primary);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
 }
 .amp-marker { background: transparent; border: none; }
 
-/* ── Pulsing reliability dot ── */
+/* ── Motion ── */
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.55; transform: scale(0.85); }
+  50%      { opacity: 0.5; transform: scale(0.85); }
 }
 .pulse-dot { animation: pulse-dot 1.8s ease-in-out infinite; }
 
-/* ── Ticker scroll ── */
 @keyframes ticker-scroll {
-  0% { transform: translateX(0); }
+  0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
 .ticker-track {
@@ -196,29 +288,24 @@
   animation: ticker-scroll 28s linear infinite;
 }
 
-/* ── Spinner ── */
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 1.2s linear infinite; }
 
-/* ── Screen fade ── */
 @keyframes screen-fade {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .screen-fade { animation: screen-fade 0.28s ease; }
 
-/* ── Sheet slide-up ── */
 @keyframes sheet-up {
   from { transform: translateY(100%); opacity: 0.6; }
   to   { transform: translateY(0);    opacity: 1; }
 }
-.sheet-in { animation: sheet-up 0.32s cubic-bezier(0.2,0.9,0.3,1); }
+.sheet-in { animation: sheet-up 0.32s cubic-bezier(0.2, 0.9, 0.3, 1); }
 
-/* ── Press feedback ── */
-.tap { cursor: pointer; transition: transform 0.12s ease; }
-.tap:active { transform: scale(0.97); }
+.tap { cursor: pointer; transition: transform 0.12s ease, background-color 0.12s ease; }
+.tap:active { transform: scale(0.985); }
 
-/* ── Stagger fade-up ── */
 @keyframes fadeSlideUp {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -236,6 +323,14 @@
   .animate-stagger > *:nth-child(6) { animation-delay: 200ms; }
   .animate-stagger > *:nth-child(7) { animation-delay: 240ms; }
   .animate-stagger > *:nth-child(8) { animation-delay: 280ms; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @layer base {
