@@ -2,11 +2,10 @@ import { Map, Route, Gauge, Car, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const NAV_ITEMS = [
-  { path: '/',             icon: Map,   label: 'Discover', match: (p) => p === '/' || p.startsWith('/charger') },
-  { path: '/trip-planner', icon: Route, label: 'Trip',     match: (p) => p.startsWith('/trip') },
-  { path: '/dashboard',    icon: Gauge, label: 'Stats',    match: (p) => p === '/dashboard' },
-  { path: '/garage',       icon: Car,   label: 'Garage',   match: (p) => p === '/garage' || p === '/add-vehicle' },
-  { path: '/profile',      icon: User,  label: 'Profile',  match: (p) => p === '/profile' },
+  { path: '/',             icon: Map,   label: 'Discover', match: (p) => p === '/' || p.startsWith('/charger') || p.startsWith('/report') },
+  { path: '/trip-planner', icon: Route, label: 'Trips',    match: (p) => p.startsWith('/trip') },
+  { path: '/garage',       icon: Car,   label: 'My car',   match: (p) => p === '/garage' || p === '/add-vehicle' },
+  { path: '/profile',      icon: User,  label: 'You',      match: (p) => p === '/profile' || p === '/dashboard' },
 ];
 
 export default function BottomNav() {

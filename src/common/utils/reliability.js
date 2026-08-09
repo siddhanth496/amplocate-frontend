@@ -13,10 +13,11 @@ export function relHex(score) {
 }
 
 export function relLabel(score) {
-  if (score >= 0.85) return 'Excellent';
-  if (score >= 0.7) return 'Good';
-  if (score >= 0.5) return 'Moderate';
-  return 'Unreliable';
+  // Say what the driver will experience, not a grade they have to decode.
+  if (score >= 0.85) return 'Usually works';
+  if (score >= 0.7) return 'Mostly works';
+  if (score >= 0.5) return 'Hit or miss';
+  return 'Often broken';
 }
 
 export function relPct(score) {

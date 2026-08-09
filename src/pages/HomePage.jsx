@@ -8,7 +8,6 @@ import MapView from '../components/MapView';
 import LocationSearch from '../components/LocationSearch';
 import { AmpMark } from '../components/Logo';
 import { ChargerCardSkeleton } from '../components/Skeleton';
-import GettingStarted from '../components/GettingStarted';
 import { getNearby } from '../common/api/chargers';
 import { listMyVehicles } from '../common/api/vehicles';
 import { relColor, relLabel, relPct, timeAgo, connectorLabel, maxPowerKw } from '../common/utils/reliability';
@@ -49,53 +48,77 @@ function RelRing({ score, size = 44 }) {
 function ChargerCard({ charger, onClick }) {
   const power = maxPowerKw(charger);
   const isFast = power >= 50;
+  const verdict = relLabel(charger.reliability_score);
+  const tone = relColor(charger.reliability_score);
+
   return (
-    <button
-      onClick={onClick}
-      className="tap card-lift w-full text-left p-4 rounded-3xl"
-      style={{
-        background: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
-        boxShadow: 'var(--shadow-sm)',
-      }}
+    <div
+      className="card-lift rounded-3xl overflow-hidden"
+      style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}
     >
-      <div className="flex items-center gap-3.5">
-        <RelRing score={charger.reliability_score} />
-        <div className="min-w-0 flex-1">
-          <div className="font-display font-semibold text-[15px] leading-snug truncate">{charger.name}</div>
-          <div className="text-xs mt-0.5 truncate" style={{ color: 'var(--color-text-tertiary)' }}>
-            {charger.operator} · {charger.distance_km} km · verified {timeAgo(charger.last_verified_at)}
-          </div>
+      <button onClick={onClick} className="tap w-full text-left p-4 pb-3">
+        {/* Verdict first — it is the reason this app exists */}
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full shrink-0" style={{ background: tone }} />
+          <span className="text-[13px] font-bold" style={{ color: tone }}>{verdict}</span>
+          <span className="text-[11px]" style={{ color: 'var(--color-text-tertiary)' }}>
+            · checked {timeAgo(charger.last_verified_at)}
+          </span>
         </div>
-        <ChevronRight size={16} className="shrink-0" style={{ color: 'var(--color-text-tertiary)' }} />
+
+        <div className="font-display font-semibold text-[15px] leading-snug truncate mt-1.5">
+          {charger.name}
+        </div>
+        <div className="text-xs mt-0.5 truncate" style={{ color: 'var(--color-text-tertiary)' }}>
+          {charger.distance_km} km away · {charger.operator}
+        </div>
+
+        <div className="flex items-center flex-wrap gap-1.5 mt-2.5">
+          {charger.compatible === true && (
+            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg flex items-center gap-1"
+              style={{ background: 'var(--color-emerald-light)', color: 'var(--color-emerald)' }}>
+              <Zap size={11} /> Fits your car
+            </span>
+          )}
+          {charger.compatible === false && (
+            <span className="text-[11px] font-semibold px-2 py-1 rounded-lg"
+              style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
+              Wrong plug
+            </span>
+          )}
+          {power > 0 && (
+            <span className={`text-[11px] font-bold px-2 py-1 rounded-lg ${isFast ? 'amp-gradient-bg text-white' : ''}`}
+              style={isFast ? {} : { background: 'var(--color-surface-alt)', color: 'var(--color-text-secondary)' }}>
+              {isFast ? `⚡ ${power} kW fast` : `${power} kW`}
+            </span>
+          )}
+          {charger.price_per_kwh != null && (
+            <span className="text-[11px] font-medium px-2 py-1 rounded-lg"
+              style={{ background: 'var(--color-surface-alt)', color: 'var(--color-text-secondary)' }}>
+              ₹{charger.price_per_kwh}/kWh
+            </span>
+          )}
+        </div>
+      </button>
+
+      {/* The thing you actually came to do, one tap from the list */}
+      <div className="flex" style={{ borderTop: '1px solid var(--color-border-light)' }}>
+        <button onClick={onClick} className="tap flex-1 py-2.5 text-xs font-semibold"
+          style={{ color: 'var(--color-text-secondary)' }}>
+          Details
+        </button>
+        <div style={{ width: 1, background: 'var(--color-border-light)' }} />
+        <a
+          href={`https://www.google.com/maps/dir/?api=1&destination=${charger.lat},${charger.lng}`}
+          target="_blank" rel="noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="tap flex-1 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5"
+          style={{ color: 'var(--color-brand)' }}
+        >
+          <Navigation size={13} /> Go
+        </a>
       </div>
-      <div className="flex items-center flex-wrap gap-1.5 mt-3 pl-[58px]">
-        {charger.compatible === true && (
-          <span className="text-[11px] font-semibold px-2 py-1 rounded-lg flex items-center gap-1"
-            style={{ background: 'var(--color-emerald-light)', color: 'var(--color-emerald)' }}>
-            <Zap size={11} /> Fits your EV
-          </span>
-        )}
-        {charger.compatible === false && (
-          <span className="text-[11px] font-semibold px-2 py-1 rounded-lg"
-            style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
-            Incompatible
-          </span>
-        )}
-        {power > 0 && (
-          <span className={`text-[11px] font-bold px-2 py-1 rounded-lg ${isFast ? 'amp-gradient-bg text-white' : ''}`}
-            style={isFast ? {} : { background: 'var(--color-surface-alt)', color: 'var(--color-text-secondary)' }}>
-            {isFast ? `⚡ ${power} kW fast` : `${power} kW`}
-          </span>
-        )}
-        {charger.price_per_kwh != null && (
-          <span className="text-[11px] font-medium px-2 py-1 rounded-lg"
-            style={{ background: 'var(--color-surface-alt)', color: 'var(--color-text-secondary)' }}>
-            ₹{charger.price_per_kwh}/kWh
-          </span>
-        )}
-      </div>
-    </button>
+    </div>
   );
 }
 
@@ -110,7 +133,8 @@ export default function HomePage() {
   const [error, setError] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({ connector_type: null, min_reliability: null, radius_km: 25 });
+  const [onlyFits, setOnlyFits] = useState(false);
+  const [filters, setFilters] = useState({ connector_type: null, min_reliability: null, min_power_kw: null, radius_km: 25 });
   const abortRef = useRef(null);
 
   useEffect(() => {
@@ -147,6 +171,7 @@ export default function HomePage() {
         radius_km: filters.radius_km,
         connector_type: filters.connector_type || undefined,
         min_reliability: filters.min_reliability || undefined,
+        min_power_kw: filters.min_power_kw || undefined,
         vehicle_id: vehicleId || undefined,
         limit: 60,
       },
@@ -167,8 +192,12 @@ export default function HomePage() {
     [vehicles, vehicleId],
   );
   const compatibleCount = useMemo(() => chargers.filter((c) => c.compatible).length, [chargers]);
+  const visible = useMemo(
+    () => (onlyFits ? chargers.filter((c) => c.compatible !== false) : chargers),
+    [chargers, onlyFits],
+  );
   const setConnectorFilterReset = () =>
-    setFilters({ connector_type: null, min_reliability: null, radius_km: 25 });
+    { setFilters({ connector_type: null, min_reliability: null, min_power_kw: null, radius_km: 25 }); setOnlyFits(false); };
   const reliableCount = useMemo(() => chargers.filter((c) => c.reliability_score >= 0.8).length, [chargers]);
 
   const vehiclePill = defaultVehicle ? (
@@ -194,6 +223,48 @@ export default function HomePage() {
     >
       <Car size={14} /> Add your EV
     </button>
+  );
+
+  // The two questions every driver actually has — "will it work?" and "does it
+  // fit?" — as visible one-tap toggles. Everything rarer stays behind the icon.
+  const chipStyle = (on) => (on
+    ? { background: 'var(--color-brand)', color: '#141b04' }
+    : { background: 'var(--color-surface)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border)' });
+
+  const quickFilters = (
+    <div className="flex items-center gap-1.5 overflow-x-auto hide-scrollbar">
+      <button
+        onClick={() => setFilters((f) => ({ ...f, min_reliability: f.min_reliability ? null : 0.7 }))}
+        className="tap shrink-0 text-[11px] font-bold px-3 py-2 rounded-xl"
+        style={chipStyle(!!filters.min_reliability)}
+      >
+        Working now
+      </button>
+      <button
+        disabled={!defaultVehicle}
+        onClick={() => setOnlyFits((v) => !v)}
+        title={defaultVehicle ? '' : 'Add your car first'}
+        className="tap shrink-0 text-[11px] font-bold px-3 py-2 rounded-xl disabled:opacity-40"
+        style={chipStyle(onlyFits)}
+      >
+        Fits my car
+      </button>
+      <button
+        onClick={() => setFilters((f) => ({ ...f, min_power_kw: f.min_power_kw ? null : 50 }))}
+        className="tap shrink-0 text-[11px] font-bold px-3 py-2 rounded-xl"
+        style={chipStyle(!!filters.min_power_kw)}
+      >
+        Fast charging
+      </button>
+      <button
+        onClick={() => setShowFilters((v) => !v)}
+        aria-label="More filters"
+        className="tap shrink-0 p-2 rounded-xl"
+        style={chipStyle(showFilters)}
+      >
+        <SlidersHorizontal size={14} />
+      </button>
+    </div>
   );
 
   const heroLine = loading
@@ -239,17 +310,7 @@ export default function HomePage() {
 
   const listBody = (
     <>
-      <GettingStarted hasVehicle={!!defaultVehicle} />
-
-      {!loading && chargers.length > 0 && (
-        <div className="flex items-start gap-2 px-1 pb-0.5">
-          <Info size={12} style={{ color: 'var(--color-text-tertiary)', marginTop: 2 }} className="shrink-0" />
-          <p className="text-[11px] leading-snug" style={{ color: 'var(--color-text-tertiary)' }}>
-            The ring shows how likely a charger is to be working, based on recent driver reports.
-            Green is good, red means recent failures. Tap any charger for details.
-          </p>
-        </div>
-      )}
+      {quickFilters}
 
       {error && (
         <div className="p-4 rounded-3xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
@@ -289,7 +350,7 @@ export default function HomePage() {
         </div>
       ) : (
         <div className="space-y-2.5 animate-stagger" style={{ opacity: loading ? 0.55 : 1, transition: 'opacity 0.2s' }}>
-          {chargers.map((c) => (
+          {visible.map((c) => (
             <ChargerCard key={c.id} charger={c} onClick={() => navigate(`/charger/${c.id}`)} />
           ))}
         </div>
