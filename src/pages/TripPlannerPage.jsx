@@ -402,9 +402,13 @@ export default function TripPlannerPage() {
     if (points.origin) m.push({ pos: [points.origin.lat, points.origin.lng], color: '#1b4cf0', label: 'Start' });
     points.waypoints.filter(Boolean).forEach((w, i) =>
       m.push({ pos: [w.lat, w.lng], color: '#d97706', label: `Stop ${i + 1}` }));
-    if (points.dest) m.push({ pos: [points.dest.lat, points.dest.lng], color: '#fb7185', label: 'End' });
+    // Show the prefix on the map too — seeing where coverage runs out is more
+    // informative than a sentence saying it does.
+    (plan?.partial_stops || []).forEach((s, i) =>
+      m.push({ pos: [s.charger.lat, s.charger.lng], color: '#0e9f6e', label: `${i + 1}` }));
+    if (points.dest) m.push({ pos: [points.dest.lat, points.dest.lng], color: '#e5484d', label: 'End' });
     return m;
-  }, [points]);
+  }, [points, plan]);
 
   const confidenceColor = { high: '#7ef0c0', medium: '#ffd76a', low: '#ffb3b6' }[plan?.confidence] || '#94a3b8';
 
@@ -560,6 +564,52 @@ export default function TripPlannerPage() {
                   <div className="p-4 rounded-xl text-sm" style={{ background: 'var(--color-rose-light)', color: 'var(--color-rose)' }}>
                     {plan.note}
                   </div>
+
+                  {/* The prefix we CAN stand behind. The note promises "the stops
+                      below", so they have to actually be below it. */}
+                  {plan.partial_stops?.length > 0 && (
+                    <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
+                      <div className="flex items-center gap-2">
+                        <RouteIcon size={15} style={{ color: 'var(--color-brand)' }} />
+                        <div className="font-display text-sm font-bold">
+                          How far we can get you
+                        </div>
+                      </div>
+                      <p className="text-[12.5px] mt-0.5 mb-3" style={{ color: 'var(--color-text-secondary)' }}>
+                        {plan.partial_stops.length} stop{plan.partial_stops.length === 1 ? '' : 's'} we can plan safely.
+                        Past the last one we have no charger data on this route yet.
+                      </p>
+                      <div className="space-y-2">
+                        {plan.partial_stops.map((s, i) => (
+                          <div key={`${s.charger.id}-${i}`} className="flex items-center gap-2.5 p-3 rounded-xl"
+                            style={{ background: 'var(--color-surface-alt)' }}>
+                            <div className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[11.5px] font-bold"
+                              style={{ background: 'var(--color-brand)', color: 'var(--color-on-brand)' }}>
+                              {i + 1}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <button
+                                onClick={() => navigate(`/charger/${s.charger.id}`)}
+                                className="tap text-xs font-bold truncate block text-left w-full"
+                              >
+                                {s.charger.name}
+                              </button>
+                              <div className="text-[12px]" style={{ color: 'var(--color-text-tertiary)' }}>
+                                arrive {Math.round(s.arrival_soc)}% · charge to {Math.round(s.target_soc)}% · ~{Math.round(s.dwell_minutes)} min
+                              </div>
+                            </div>
+                            <RelRing score={s.charger.reliability_score} size={32} />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mt-3 pt-3 text-[12.5px] flex items-start gap-1.5"
+                        style={{ borderTop: '1px solid var(--color-border-light)', color: 'var(--color-text-tertiary)' }}>
+                        <AlertTriangle size={13} className="shrink-0 mt-0.5" />
+                        Know a charger past this point? Add it on Discover and the route will replan.
+                      </div>
+                    </div>
+                  )}
+
                   {plan.suggestions?.length > 0 && (
                     <div className="p-4 rounded-2xl" style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)' }}>
                       <div className="flex items-center gap-2">
